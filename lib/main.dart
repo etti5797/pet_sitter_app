@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 // import 'dart:developer' as developer;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,8 +20,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 201, 160, 106)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 201, 160, 106)),
         useMaterial3: true,
       ),
       home: const HomePage(title: 'Flutter Demo Home Page'),
@@ -67,17 +68,32 @@ class HomePage extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 201, 160, 106),
-                padding: const EdgeInsets.symmetric(horizontal: 80),
+                padding: const EdgeInsets.symmetric(horizontal: 0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text(
-                'I have a PetSitter account',
-                style: TextStyle(
-                  color: Colors.white, // Set the desired text color
-                  fontWeight: FontWeight.bold, // Make the text bold
-                  fontSize: 17.0,
+              child: const SizedBox(
+                width: 360, // Set the desired width
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'I have a PetSitter account',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17.0,
+                      ),
+                    ),
+                    SizedBox(
+                        width:
+                            10), // Add some spacing between the icon and the text
+                    Icon(
+                      FontAwesomeIcons.google,
+                      color: Colors.white,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -88,12 +104,9 @@ class HomePage extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 201, 160, 106),
-                padding: const EdgeInsets.symmetric(
-                    horizontal:
-                        67), 
+                padding: const EdgeInsets.symmetric(horizontal: 67),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                      10),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: const Text(
@@ -121,7 +134,7 @@ class HomePage extends StatelessWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           return Container(
-            width: 350, 
+            width: 350,
             height: 350,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
