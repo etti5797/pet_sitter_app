@@ -12,7 +12,20 @@
           "package_name": "com.example.petsitter"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "79441047175-juslaiqlo9fl6f2gjffss64q5lqpe7af.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.petsitter",
+            "certificate_hash": "adb9bacc2a24b01463e006c3ed46e1719b3ad808"
+          }
+        },
+        {
+          "client_id": "79441047175-251otab9i3pclejphu4qqbkuh9urqoqt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB1GKHEub5P3RAww79YuOJBEUBXcWgDwOo"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "79441047175-251otab9i3pclejphu4qqbkuh9urqoqt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

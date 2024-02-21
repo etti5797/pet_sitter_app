@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts:
-  firebase_core: ^2.1.1
+  firebase_core: ^2.25.4
   firebase_storage: 
 
 
@@ -39,6 +39,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   font_awesome_flutter: ^10.7.0
+  firebase_auth:
+  cloud_firestore: ^4.15.5
+  google_sign_in: 
 
 dev_dependencies:
   flutter_test:
