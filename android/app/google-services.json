@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "79441047175",
+    "project_id": "petsitter-be7e1",
+    "storage_bucket": "petsitter-be7e1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79441047175:android:0a332fb51e2fb902005222",
+        "android_client_info": {
+          "package_name": "com.example.petsitter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1GKHEub5P3RAww79YuOJBEUBXcWgDwOo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

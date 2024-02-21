@@ -1,44 +1,48 @@
+// import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+// import 'dart:developer' as developer;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 201, 160, 106)),
+            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 201, 160, 106)),
         useMaterial3: true,
       ),
-      home: HomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+  const HomePage({super.key, required this.title});
 
   final String title;
+  // final FirebaseStorage storage = FirebaseStorage.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 201, 160, 106),
         title: Text(
           'Pet Sitter',
           style: GoogleFonts.pacifico(
-            fontSize: 50,
-            color: Color.fromARGB(255, 182, 124, 97)
-          ),
+              fontSize: 50, color: const Color.fromARGB(255, 255, 255, 255)),
         ),
         centerTitle: true,
       ),
@@ -46,11 +50,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const CircleAvatar(
-              radius: 180,
-              backgroundImage: NetworkImage(
-                  'https://cdn.pixabay.com/photo/2019/05/29/14/17/welsh-corgi-pembroke-4237630_1280.jpg'),
-            ),
+            _buildCircularImage('homePageImage.png'),
             const SizedBox(height: 20),
             Text(
               'Welcome!\nConnecting between pet guardians\nand pet sitters',
@@ -65,18 +65,88 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 // Navigate to Login
               },
-              child: const Text('Login'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 201, 160, 106),
+                padding: const EdgeInsets.symmetric(horizontal: 80),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'I have a PetSitter account',
+                style: TextStyle(
+                  color: Colors.white, // Set the desired text color
+                  fontWeight: FontWeight.bold, // Make the text bold
+                  fontSize: 17.0,
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Navigate to Sign Up
               },
-              child: const Text('Sign Up'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 201, 160, 106),
+                padding: const EdgeInsets.symmetric(
+                    horizontal:
+                        67), 
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                      10),
+                ),
+              ),
+              child: const Text(
+                'Create your PetSitter account',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.0,
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildCircularImage(String fileName) {
+    return FutureBuilder<String>(
+      future: downloadFile(fileName),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return Container(
+            width: 350, 
+            height: 350,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: NetworkImage(snapshot.data!),
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Future<String> downloadFile(String fileName) async {
+    try {
+      var ref = firebase_storage.FirebaseStorage.instance.ref(fileName);
+
+      var downloadUrl = await ref.getDownloadURL();
+      // developer.log('Download URL: $downloadUrl');
+
+      return downloadUrl;
+    } catch (e) {
+      // developer.log('Error downloading file: $e');
+      rethrow;
+    }
   }
 }
