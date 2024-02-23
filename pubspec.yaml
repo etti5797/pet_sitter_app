@@ -44,6 +44,8 @@ dependencies:
   google_sign_in: 
   http:
   csc_picker: ^0.2.7
+  multi_select_flutter:
+  intl_phone_number_input:
 
 
 dev_dependencies:

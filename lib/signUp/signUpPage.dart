@@ -9,7 +9,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:csc_picker/csc_picker.dart';
-import '../signUp/utils.dart' as signUpUtils;
+// import '../signUp/utils.dart' as signUpUtils;
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -21,6 +22,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
+  bool isSpecialUser = false;
   String _name = '';
   String _email = '';
   String _password = '';
@@ -58,12 +60,12 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-  String? countryValue = "";
-  String? stateValue = "";
-  String? cityValue = "";
-  String? address = "";
+    String? countryValue = "";
+    String? stateValue = "";
+    String? cityValue = "";
+    String? address = "";
 
-    bool isSpecialUser = false; // Track if the checkbox is selected
+    // Track if the checkbox is selected
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 201, 160, 106),
@@ -110,97 +112,93 @@ class _SignUpPageState extends State<SignUpPage> {
                   _name = value!;
                 },
               ),
-                CSCPicker(
-                  ///Enable disable state dropdown [OPTIONAL PARAMETER]
-                  showStates: true,
-                  
-                  /// Enable disable city drop down [OPTIONAL PARAMETER]
-                  showCities: true,
+              SizedBox(height: 20.0),
+              CSCPicker(
+                ///Enable disable state dropdown [OPTIONAL PARAMETER]
+                showStates: true,
 
-                  ///Enable (get flag with country name) / Disable (Disable flag) / ShowInDropdownOnly (display flag in dropdown only) [OPTIONAL PARAMETER]
-                  flagState: CountryFlag.DISABLE,
+                /// Enable disable city drop down [OPTIONAL PARAMETER]
+                showCities: true,
 
-                  ///Dropdown box decoration to style your dropdown selector [OPTIONAL PARAMETER] (USE with disabledDropdownDecoration)
-                  dropdownDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      color: Colors.white,
-                      border:
-                      Border.all(color: Colors.grey.shade300, width: 1)),
+                ///Enable (get flag with country name) / Disable (Disable flag) / ShowInDropdownOnly (display flag in dropdown only) [OPTIONAL PARAMETER]
+                flagState: CountryFlag.DISABLE,
 
-                  ///Disabled Dropdown box decoration to style your dropdown selector [OPTIONAL PARAMETER]  (USE with disabled dropdownDecoration)
-                  disabledDropdownDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      color: Colors.grey.shade300,
-                      border:
-                      Border.all(color: Colors.grey.shade300, width: 1)),
+                ///Dropdown box decoration to style your dropdown selector [OPTIONAL PARAMETER] (USE with disabledDropdownDecoration)
+                dropdownDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade300, width: 1)),
 
-                  ///placeholders for dropdown search field
-                  countrySearchPlaceholder: "Country",
-                  stateSearchPlaceholder: "State",
-                  citySearchPlaceholder: "City",
+                ///Disabled Dropdown box decoration to style your dropdown selector [OPTIONAL PARAMETER]  (USE with disabled dropdownDecoration)
+                disabledDropdownDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.grey.shade300,
+                    border: Border.all(color: Colors.grey.shade300, width: 1)),
 
-                  ///labels for dropdown
-                  countryDropdownLabel: "*Country",
-                  stateDropdownLabel: "*State",
-                  cityDropdownLabel: "*City",
+                ///placeholders for dropdown search field
+                countrySearchPlaceholder: "Country",
+                stateSearchPlaceholder: "State",
+                citySearchPlaceholder: "City",
 
-                  ///Default Country
-                  defaultCountry: CscCountry.Israel,
+                ///labels for dropdown
+                countryDropdownLabel: "*Country",
+                stateDropdownLabel: "*State",
+                cityDropdownLabel: "*City",
 
-                  ///Disable country dropdown (Note: use it with default country)
-                  disableCountry: false,
+                ///Default Country
+                defaultCountry: CscCountry.Israel,
 
-                  ///Country Filter [OPTIONAL PARAMETER]
-                  countryFilter: [CscCountry.Israel],
+                ///Disable country dropdown (Note: use it with default country)
+                disableCountry: false,
 
-                  ///selected item style [OPTIONAL PARAMETER]
-                  selectedItemStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                  ),
+                ///Country Filter [OPTIONAL PARAMETER]
+                countryFilter: [CscCountry.Israel],
 
-                  ///DropdownDialog Heading style [OPTIONAL PARAMETER]
-                  dropdownHeadingStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold),
-
-                  ///DropdownDialog Item style [OPTIONAL PARAMETER]
-                  dropdownItemStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                  ),
-
-                  ///Dialog box radius [OPTIONAL PARAMETER]
-                  dropdownDialogRadius: 10.0,
-
-                  ///Search bar radius [OPTIONAL PARAMETER]
-                  searchBarRadius: 10.0,
-
-                  ///triggers once country selected in dropdown
-                  onCountryChanged: (value) {
-                    setState(() {
-                      ///store value in country variable
-                      countryValue = value;
-                    });
-                  },
-
-                  ///triggers once state selected in dropdown
-                  onStateChanged: (value) {
-                    setState(() {
-                      ///store value in state variable
-                      stateValue = value;
-                    });
-                  },
-
-                  ///triggers once city selected in dropdown
-                  onCityChanged: (value) {
-                    setState(() {
-                      ///store value in city variable
-                      cityValue = value;
-                    });
-                  },
+                ///selected item style [OPTIONAL PARAMETER]
+                selectedItemStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
                 ),
+
+                ///DropdownDialog Heading style [OPTIONAL PARAMETER]
+                dropdownHeadingStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold),
+
+                ///DropdownDialog Item style [OPTIONAL PARAMETER]
+                dropdownItemStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                ),
+
+                dropdownDialogRadius: 10.0,
+
+                searchBarRadius: 10.0,
+
+                onCountryChanged: (value) {
+                  setState(() {
+                    ///store value in country variable
+                    countryValue = value;
+                  });
+                },
+
+                ///triggers once state selected in dropdown
+                onStateChanged: (value) {
+                  setState(() {
+                    ///store value in state variable
+                    stateValue = value;
+                  });
+                },
+
+                ///triggers once city selected in dropdown
+                onCityChanged: (value) {
+                  setState(() {
+                    ///store value in city variable
+                    cityValue = value;
+                  });
+                },
+              ),
               SizedBox(height: 16.0),
               Row(
                 children: [
@@ -210,7 +208,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       setState(() {
                         isSpecialUser = value!;
                         if (isSpecialUser) {
-                          signUpUtils.Utils.showAdditionalQuestionsPopup(context);
+                          _showAdditionalQuestionsPopup();
                         }
                       });
                     },
@@ -222,12 +220,32 @@ class _SignUpPageState extends State<SignUpPage> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
+                    if (cityValue == null || cityValue!.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Missing City'),
+                            content: Text('Please fill in the city field.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
                     if (isSpecialUser) {
                       // Check if the additional questions are answered
                       bool _additionalQuestionsAnswered() {
                         // Add your implementation here
                         return true; // Replace with your logic
                       }
+
                       if (_additionalQuestionsAnswered()) {
                         _signUpWithGoogle();
                       } else {
@@ -247,4 +265,113 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  void _showAdditionalQuestionsPopup() {
+    TextEditingController genderController = TextEditingController();
+    TextEditingController phoneNumberController = TextEditingController();
+    List<String> selectedPets = [];
+
+    final _specialFormKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Additional needed information'),
+          content: Form(
+            key:
+                _specialFormKey, // Assigning a new GlobalKey for the dialog form
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Question 1: Gender
+                DropdownButtonFormField<String>(
+                  value: null,
+                  hint: Text('Select Gender'),
+                  onChanged: (value) {
+                    // Handle gender selection
+                  },
+                  items: ['Male', 'Female', 'Other']
+                      .map<DropdownMenuItem<String>>((String gender) {
+                    return DropdownMenuItem<String>(
+                      value: gender,
+                      child: Text(gender),
+                    );
+                  }).toList(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select Gender';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 8.0),
+                // Question 2: Phone Number
+                TextFormField(
+                  controller: phoneNumberController,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      print("please enter phone number");
+                      return 'Please enter Phone Number';
+                    } else if (!_isValidIsraeliMobilePhoneNumber(value)) {
+                      print("Invalid Israeli mobile phone number");
+                      return 'Invalid Israeli mobile phone number';
+                    }
+                    print("null");
+                    return null;
+                  },
+                ),
+                SizedBox(height: 8.0),
+                // Question 3: Pets (Multi-select)
+                MultiSelectDialogField(
+                  items: ['Dogs', 'Cats']
+                      .map((pet) => MultiSelectItem<String>(pet, pet))
+                      .toList(),
+                  initialValue: selectedPets,
+                  onConfirm: (values) {
+                    selectedPets = values;
+                  },
+                  title: Text('Select Pets'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  isSpecialUser = false;
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_specialFormKey.currentState!.validate()) {
+                  _specialFormKey.currentState!.save();
+                  // Handle submit button press
+                  // Access the answers using controllers:
+                  // genderController.text, phoneNumberController.text, selectedPets
+                  setState(() {
+                    isSpecialUser = true;
+                  });
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _isValidIsraeliMobilePhoneNumber(String phoneNumber) {
+    // Regular expression to match Israeli mobile phone number format
+    RegExp regex = RegExp(r'^05[0-9]{8}$');
+    return regex.hasMatch(phoneNumber);
+  }
 }
