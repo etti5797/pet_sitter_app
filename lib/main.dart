@@ -2,10 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+// import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 // import 'dart:developer' as developer;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'signUpPage.dart';
+import 'signUp/signUpPage.dart';
+import 'utils/utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,13 +20,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Pet Sitter',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 201, 160, 106)),
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(title: 'Pet Sitter Home Page'),
     );
   }
 }
@@ -52,7 +53,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _buildCircularImage('homePageImage.png'),
+            Utils().buildCircularImage('homePageImage.png', 350), 
             const SizedBox(height: 20),
             Text(
               'Welcome!\nConnecting between pet guardians\nand pet sitters',
@@ -128,44 +129,5 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildCircularImage(String fileName) {
-    return FutureBuilder<String>(
-      future: downloadFile(fileName),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return Container(
-            width: 350,
-            height: 350,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                fit: BoxFit.cover,
-                image: NetworkImage(snapshot.data!),
-              ),
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  Future<String> downloadFile(String fileName) async {
-    try {
-      var ref = firebase_storage.FirebaseStorage.instance.ref(fileName);
-
-      var downloadUrl = await ref.getDownloadURL();
-      // developer.log('Download URL: $downloadUrl');
-
-      return downloadUrl;
-    } catch (e) {
-      // developer.log('Error downloading file: $e');
-      rethrow;
-    }
   }
 }
