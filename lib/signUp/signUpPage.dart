@@ -82,6 +82,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
     // Track if the checkbox is selected
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 201, 160, 106),
         title: Text(
