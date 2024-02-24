@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../signUp/signUpPage.dart';
+import 'googleSignInHandler.dart';
 
 class HomePageWithLogin extends StatelessWidget {
   @override
@@ -11,7 +12,7 @@ class HomePageWithLogin extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/homePageImage.png'), // Update the image path
+            image: AssetImage('images/homePageImage.png'), // Update the image path
             fit: BoxFit.cover,
           ),
         ),
@@ -21,10 +22,12 @@ class HomePageWithLogin extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () {
+                  GoogleSignInHandler().handleGoogleSignIn(context);
+                  print('Google Sign In');
                   // Navigate to Login
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 201, 160, 106),
+                  backgroundColor: const Color.fromARGB(255, 199, 170, 132),
                   padding: const EdgeInsets.symmetric(horizontal: 0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -65,7 +68,7 @@ class HomePageWithLogin extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 201, 160, 106),
+                  backgroundColor: const Color.fromARGB(255, 199, 170, 132),
                   padding: const EdgeInsets.symmetric(horizontal: 67),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
