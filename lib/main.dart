@@ -7,6 +7,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'signUp/signUpPage.dart';
 import 'utils/utils.dart';
+import 'homePages/designedHomePage.dart' as designedHomePage;
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,8 @@ class MyApp extends StatelessWidget {
             seedColor: const Color.fromARGB(255, 201, 160, 106)),
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Pet Sitter Home Page'),
+      // home: const HomePage(title: 'Pet Sitter Home Page'),
+      home: designedHomePage.HomePage(),
     );
   }
 }

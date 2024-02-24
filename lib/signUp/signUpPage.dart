@@ -352,9 +352,6 @@ class _SignUpPageState extends State<SignUpPage> {
               onPressed: () {
                 if (_specialFormKey.currentState!.validate()) {
                   _specialFormKey.currentState!.save();
-                  // Handle submit button press
-                  // Access the answers using controllers:
-                  // genderController.text, phoneNumberController.text, selectedPets
                   setState(() {
                     isSpecialUser = true;
                   });
@@ -368,6 +365,9 @@ class _SignUpPageState extends State<SignUpPage> {
       },
     );
   }
+
+  // TODO: need to verify all combinations of choosing check box and cancelling it// Cancel
+  // global variables need to be cleaned after cancelling the check box and filled after submission
 
   bool _isValidIsraeliMobilePhoneNumber(String phoneNumber) {
     // Regular expression to match Israeli mobile phone number format
