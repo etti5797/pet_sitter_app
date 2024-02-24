@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter/widgets.dart';
 
 class Utils {
-  Widget buildCircularImage(String fileName, double radius) {
+  Widget buildCircularImageLocal(String fileName, double radius) {
+    return Container(
+      width: radius,
+      height: radius,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        image: DecorationImage(
+          fit: BoxFit.cover,
+          image: AssetImage(fileName),
+        ),
+      ),
+    );
+  }
+
+
+  Widget buildCircularImageFromFireStore(String fileName, double radius) {
     return FutureBuilder<String>(
       future: downloadFile(fileName),
       builder: (context, snapshot) {

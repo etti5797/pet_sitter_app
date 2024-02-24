@@ -56,7 +56,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Utils().buildCircularImage('homePageImage.png', 350), 
+            Utils().buildCircularImageLocal('images/homePageImage.png', 350), 
             const SizedBox(height: 20),
             Text(
               'Welcome!\nConnecting between pet guardians\nand pet sitters',

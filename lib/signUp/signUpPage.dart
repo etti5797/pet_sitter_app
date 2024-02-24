@@ -5,9 +5,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/utils.dart';
 // import 'package:country_state_city/country_state_city.dart' as country_state_city;
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import 'package:csc_picker/csc_picker.dart';
 // import '../signUp/utils.dart' as signUpUtils;
 import 'package:multi_select_flutter/multi_select_flutter.dart';
@@ -24,8 +21,12 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   bool isSpecialUser = false;
   String _name = '';
-  String _email = '';
-  String _password = '';
+  String _phoneNumber = '';
+  String? _city = '';
+  String? _district = '';
+  String _gender = '';
+  List<String> _pets = [];
+
 
   Future<void> _signUpWithGoogle() async {
     try {
@@ -44,13 +45,27 @@ class _SignUpPageState extends State<SignUpPage> {
 
       if (user != null) {
         // Save user data to Firestore
-        await _firestore.collection('users').doc(user.uid).set({
-          'name': user.displayName,
+        await _firestore.collection('users').doc(user.email).set({
+          'name': _name,
           'email': user.email,
+          'city': _city,
+          'district': _district,
         });
+        if(isSpecialUser){
+          await _firestore.collection('petSitters').doc(user.email).set({
+            'name': _name,
+            'email': user.email,
+            'city': _city,
+            'district': _district,
+            'phoneNumber': _phoneNumber,
+            'pets': _pets,
+            'gender': _gender,
+          });
+        } 
 
-        // Navigate to home page or any other page
+       //TODO:  // Navigate to home page or any other page
         // after successful sign-up
+
       }
     } catch (e) {
       // Handle sign-up with Google error
@@ -90,7 +105,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Utils().buildCircularImage('signUpPageImage.jpg', 100),
+              Utils().buildCircularImageLocal('images/signUpPageImage.jpg', 100),
               Text(
                 'Fill your information to sign up',
                 textAlign: TextAlign.center,
@@ -188,6 +203,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   setState(() {
                     ///store value in state variable
                     stateValue = value;
+                    _district = value;
                   });
                 },
 
@@ -196,6 +212,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   setState(() {
                     ///store value in city variable
                     cityValue = value;
+                    _city = value;
                   });
                 },
               ),
@@ -220,7 +237,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    if (cityValue == null || cityValue!.isEmpty) {
+                    if (_city == null || _city!.isEmpty) {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -288,7 +305,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   value: null,
                   hint: Text('Select Gender'),
                   onChanged: (value) {
-                    // Handle gender selection
+                    _gender = value!;
                   },
                   items: ['Male', 'Female', 'Other']
                       .map<DropdownMenuItem<String>>((String gender) {
@@ -313,18 +330,15 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      print("please enter phone number");
                       return 'Please enter Phone Number';
                     } else if (!_isValidIsraeliMobilePhoneNumber(value)) {
-                      print("Invalid Israeli mobile phone number");
                       return 'Invalid Israeli mobile phone number';
                     }
-                    print("null");
+                    _phoneNumber = value;
                     return null;
                   },
                 ),
                 SizedBox(height: 8.0),
-                // Question 3: Pets (Multi-select)
                 MultiSelectDialogField(
                   items: ['Dogs', 'Cats']
                       .map((pet) => MultiSelectItem<String>(pet, pet))
@@ -332,6 +346,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   initialValue: selectedPets,
                   onConfirm: (values) {
                     selectedPets = values;
+                    _pets = values;
                   },
                   title: Text('Select Pets'),
                 ),

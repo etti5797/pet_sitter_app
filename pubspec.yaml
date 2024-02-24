@@ -76,7 +76,6 @@ flutter:
     - images/first.jpeg
     - images/giveFeedback.jpg
     - images/signUpPageImage.jpg
-    - images/yazan.png
     - images/homePageImage.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
