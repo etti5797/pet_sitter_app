@@ -8,6 +8,7 @@ import '../utils/utils.dart';
 import 'package:csc_picker/csc_picker.dart';
 // import '../signUp/utils.dart' as signUpUtils;
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import '../generalAppView.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -65,6 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
        //TODO:  // Navigate to home page or any other page
         // after successful sign-up
+        Navigator.push(context, MaterialPageRoute(builder: (context) => GeneralAppPage()));
 
       }
     } catch (e) {
