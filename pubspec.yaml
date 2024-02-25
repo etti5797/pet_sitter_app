@@ -47,6 +47,9 @@ dependencies:
   multi_select_flutter:
   intl_phone_number_input:
   page_indicator: ^0.4.1
+  country_state_city: ^0.1.6
+  autocomplete_textfield: ^2.0.1
+  country_state_city_picker: ^1.2.8
 
 
 dev_dependencies:
@@ -77,7 +80,10 @@ flutter:
     - images/giveFeedback.jpg
     - images/signUpPageImage.jpg
     - images/homePageImage.png
-
+    - images/cats/
+    - images/dogs/
+    - images/dogsCats/
+    
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
