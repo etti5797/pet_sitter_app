@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:petsitter/recently_viewed/recentlyViewedScreen.dart';
 import 'package:petsitter/tempFiles/favorites.dart';
-import 'package:petsitter/tempFiles/recentlyViewed.dart';
 import 'package:petsitter/discover_sitters/exploreScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -13,6 +13,7 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
   int _currentIndex = 0;
   final List<Widget> _screens = [
     ExploreScreen(),
+    RecentlyViewedScreen(),
     FavoritesScreen(),
   ];
 
@@ -32,7 +33,6 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              // Perform logout action here
               Navigator.pop(context);
             },
           ),
@@ -50,11 +50,15 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Screen 1',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Screen 2',
+            icon: Icon(Icons.history),
+            label: 'Recently viewed',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
           ),
         ],
       ),

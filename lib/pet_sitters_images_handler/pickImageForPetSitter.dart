@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 List<String> catImages = [
   'images/cats/cat1.jpeg',
-  'images/cats/cat2.jpeg',
   'images/cats/cat3.jpeg',
 ];
 
