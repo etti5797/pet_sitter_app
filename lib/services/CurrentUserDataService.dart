@@ -4,6 +4,34 @@ import 'package:firebase_auth/firebase_auth.dart';
 class UserDataService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String userEmail = ''; //in order not to get the email from the database every time
+  String userName = ''; //in order not to get the name from the database every time
+
+
+    Future<String> getUserName() async {
+    try {
+      if(userName.isNotEmpty){
+        return userName;
+      }
+
+      User? user = _auth.currentUser;
+
+      if (user != null) {
+        DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.email).get();
+
+        if (userDoc.exists) {
+          // Adjust this based on your Firestore document structure
+          String userName = userDoc['name']; // Replace 'city' with the actual field name in your Firestore document
+          return userName;
+        }
+      }
+
+      return 'Unknown'; // Default value if user or user data not found
+    } catch (e) {
+      print('Error fetching user city: $e');
+      return 'Error'; // Handle errors as needed
+    }
+  }
 
   Future<String> getUserCity() async {
     try {
@@ -16,6 +44,31 @@ class UserDataService {
           // Adjust this based on your Firestore document structure
           String userCity = userDoc['city']; // Replace 'city' with the actual field name in your Firestore document
           return userCity;
+        }
+      }
+
+      return 'Unknown'; // Default value if user or user data not found
+    } catch (e) {
+      print('Error fetching user city: $e');
+      return 'Error'; // Handle errors as needed
+    }
+  }
+
+    Future<String> getUserEmail() async {
+    try {
+      if(userEmail.isNotEmpty){
+        return userEmail;
+      }
+
+      User? user = _auth.currentUser;
+
+      if (user != null) {
+        DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.email).get();
+
+        if (userDoc.exists) {
+          // Adjust this based on your Firestore document structure
+          String userName = userDoc['email']; // Replace 'city' with the actual field name in your Firestore document
+          return userName;
         }
       }
 

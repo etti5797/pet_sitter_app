@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 import '../pet_sitters_images_handler/pickImageForPetSitter.dart';
 import 'package:petsitter/services/PetSitterService.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
+import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 
 
 class PetSitterProfile extends StatefulWidget {
@@ -18,6 +20,7 @@ class PetSitterProfile extends StatefulWidget {
 
 class _PetSitterProfileState extends State<PetSitterProfile> {
   bool isFavorite = false;
+  var reviews = [];
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,7 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
               child: Text('Error: ${snapshot.error}'),
             );
           } else {
-            // TODO: Extract pet sitter data from snapshot
+
             final petSitterData = snapshot.data as Map<String, dynamic>;
 
             var petTypes = List<String>.from(petSitterData['pets']);
@@ -78,7 +81,8 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                       SizedBox(width: 8),
                       Text(
                         petSitterData['name'],
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -98,7 +102,19 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                     'Responsibilities: ${petSitterData['pets'].join(', ')}',
                     style: TextStyle(fontSize: 16),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 16), 
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(
+                        reviews.length,
+                        (index) {
+                          final review = reviews[index];
+                          return ReviewCard(review: review);
+                        },
+                      ),
+                    ),
+                  ),
                   // Show contact info button
                   ElevatedButton(
                     onPressed: () {
@@ -118,14 +134,22 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
   }
 
   void addToRecentlyViewed() {
-    DocumentReference petSitterReference =
-        FirebaseFirestore.instance.collection('petSitters').doc(widget.petSitterId);
+    DocumentReference petSitterReference = FirebaseFirestore.instance
+        .collection('petSitters')
+        .doc(widget.petSitterId);
     UserDataService().addRecentlyViewedDocument(petSitterReference);
   }
 
-  Future<dynamic> fetchPetSitterData() {
-    var petSitter = PetSitterService().getPetSitterByIdentifier(widget.petSitterId);
+  Future<Map<String, dynamic>?> fetchPetSitterData() async {
+    var petSitter = await PetSitterService().getPetSitterByIdentifier(widget.petSitterId);
+    var reviewsSnapshot = await FirebaseFirestore.instance
+        .collection('petSitters')
+        .doc(widget.petSitterId)
+        .collection('reviews')
+        .get();
 
+    reviews = reviewsSnapshot.docs.map((doc) => doc.data()).toList();
+    
     return petSitter;
   }
 

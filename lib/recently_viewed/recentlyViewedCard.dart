@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
 import 'package:petsitter/pet_sitters_images_handler/pickImageForPetSitter.dart';
 import 'package:petsitter/discover_sitters/petSitterProfile.dart';
+import 'package:petsitter/services/CurrentUserDataService.dart';
+import 'package:petsitter/services/PetSitterService.dart';
 
 class RecentPetSitterCard extends StatelessWidget {
   final DocumentSnapshot<Map<String, dynamic>> petSitterSnapshot;
@@ -76,6 +78,42 @@ Widget build(BuildContext context) {
           icon: Icon(Icons.add_comment),
           onPressed: () {
             // Add feedback functionality here
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                final TextEditingController feedbackController = TextEditingController();
+
+                return AlertDialog(
+                  title: Text('Feedback'),
+                  content: TextField(
+                    controller: feedbackController, // Add the controller to the TextField
+                    maxLength: 100,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your feedback',
+                    ),
+                  ),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        // Handle submit feedback here
+                        String currentUserEmail = await UserDataService().getUserEmail();
+                        String feedback = feedbackController.text; // Get the text from the controller
+                        PetSitterService().addReview(email, feedback);
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Submit'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle cancel feedback here
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Cancel'),
+                    ),
+                  ],
+                );
+              },
+            );
           },
         ),
       ),
