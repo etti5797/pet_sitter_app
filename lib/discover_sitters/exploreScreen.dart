@@ -201,6 +201,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               petType: petType, // Pass the folderName to the PetSitterCard
               city: petSitter['city'],
               email: petSitter['email'],
+              imagePath: petSitter['image'],
               // details: petSitter['details'],
             );
           },

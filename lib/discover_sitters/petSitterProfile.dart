@@ -54,10 +54,12 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Image.asset(petSitterData['image']),
                   // Display image
-                  Image(
-                    image: loadRandomImage(allPets).image,
-                  ),
+                  // Image(
+                  //   image: loadRandomImage(allPets).image,
+                  //   Image.asset(randomImagePath);
+                  // ),
                   SizedBox(height: 16),
                   Row(
                     children: [

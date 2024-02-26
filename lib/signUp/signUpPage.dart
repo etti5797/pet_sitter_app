@@ -3,12 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:petsitter/pet_sitters_images_handler/pickImageForPetSitter.dart';
 import '../utils/utils.dart';
 // import 'package:country_state_city/country_state_city.dart' as country_state_city;
 import 'package:csc_picker/csc_picker.dart';
 // import '../signUp/utils.dart' as signUpUtils;
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../generalAppView.dart';
+import '../pet_sitters_images_handler/petSitterPetsFound.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -44,6 +46,9 @@ class _SignUpPageState extends State<SignUpPage> {
           await _auth.signInWithCredential(credential);
       final User? user = userCredential.user;
 
+      String petType = getPetTypeFromList(_pets);
+      String randomImagePath = getRandomImageUrl(petType);
+
       if (user != null) {
         // Save user data to Firestore
         await _firestore.collection('users').doc(user.email).set({
@@ -61,6 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
             'phoneNumber': _phoneNumber,
             'pets': _pets,
             'gender': _gender,
+            'image': randomImagePath,
           });
         } 
 

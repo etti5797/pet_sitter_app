@@ -8,8 +8,9 @@ class PetSitterCard extends StatefulWidget {
   final String petType; // Add folderName property
   final String city;
   final String email;
+  final String imagePath;
 
-  PetSitterCard({Key? key, required this.name, required this.petType, required this.city, required this.email})
+  PetSitterCard({Key? key, required this.name, required this.petType, required this.city, required this.email, required this.imagePath})
       : super(key: key);
 
   @override
@@ -61,7 +62,8 @@ class _PetSitterCardState extends State<PetSitterCard> {
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: loadRandomImage(widget.petType).image,
+                      // image: loadRandomImage(widget.petType).image,
+                      image: Image.asset(widget.imagePath).image,
                       fit: BoxFit.cover,
                     ),
                   ),

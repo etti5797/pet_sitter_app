@@ -37,7 +37,8 @@ Widget build(BuildContext context) {
         contentPadding: EdgeInsets.all(5),
         leading: CircleAvatar(
           radius: 30,
-          backgroundImage: loadRandomImage(allPets).image,
+          backgroundImage: Image.asset(petSitterSnapshot['image']).image,
+          // backgroundImage: loadRandomImage(allPets).image,
         ),
         title: Text(
           petSitterName,

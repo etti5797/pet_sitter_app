@@ -36,8 +36,8 @@ String getRandomImageUrl(String petType) {
   return imagePaths[randomIndex];
 }
 
-Image loadRandomImage(String petType) {
-  String randomImagePath = getRandomImageUrl(petType);
+// Image loadRandomImage(String petType) {
+//   String randomImagePath = getRandomImageUrl(petType);
 
-  return Image.asset(randomImagePath);
-}
+//   return Image.asset(randomImagePath);
+// }
