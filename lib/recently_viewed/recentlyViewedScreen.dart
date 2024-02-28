@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:petsitter/recently_viewed/recentlyViewedCard.dart';
-import 'package:petsitter/services/CurrentUserDataService.dart'
-    as currentUserDataService;
+import 'package:petsitter/services/CurrentUserDataService.dart' as currentUserDataService;
 import 'package:google_fonts/google_fonts.dart';
 
 class RecentlyViewedScreen extends StatelessWidget {
@@ -14,7 +13,7 @@ class RecentlyViewedScreen extends StatelessWidget {
           Stack(
             children: [
               Image.asset(
-                  'images/recentlyViewedImage.jpeg'), // Replace 'your_image.png' with the actual image path
+                'images/recentlyViewedImage.jpeg'), // Replace 'your_image.png' with the actual image path
               Positioned.fill(
                 child: Center(
                   child: Text(
@@ -32,8 +31,7 @@ class RecentlyViewedScreen extends StatelessWidget {
           ),
           Expanded(
             child: FutureBuilder<List<DocumentSnapshot<Map<String, dynamic>>>>(
-              future: currentUserDataService.UserDataService()
-                  .getRecentlyViewedDocuments(),
+              future: currentUserDataService.UserDataService().getRecentlyViewedDocuments(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
@@ -42,13 +40,22 @@ class RecentlyViewedScreen extends StatelessWidget {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Text('No recently viewed pet sitters.');
                 } else {
+                  // Filter out duplicate entries based on email
+                  final viewedEmails = <String>{};
+                  final uniqueData = <DocumentSnapshot<Map<String, dynamic>>>[];
+                  for (final document in snapshot.data!) {
+                    final email = document['email'] as String;
+                    if (!viewedEmails.contains(email)) {
+                      uniqueData.add(document);
+                      viewedEmails.add(email);
+                    }
+                  }
                   return ListView.builder(
-                    itemCount: snapshot.data!.length,
+                    itemCount: uniqueData.length,
                     itemBuilder: (context, index) {
-                      DocumentSnapshot<Map<String, dynamic>> petSitterSnapshot =
-                          snapshot.data![index];
                       return RecentPetSitterCard(
-                          petSitterSnapshot: petSitterSnapshot);
+                        petSitterSnapshot: uniqueData[index],
+                      );
                     },
                   );
                 }
