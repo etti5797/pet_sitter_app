@@ -170,10 +170,10 @@ Future<void> addRecentlyViewedDocument(DocumentReference documentReference) asyn
         // Insert the new document reference at the beginning of the list
         recentlyViewedReferences.insert(0, documentReference);
 
-        // Limit the list to a certain number of items, if desired
-        // if (recentlyViewedReferences.length > 10) {
-        //   recentlyViewedReferences.removeLast();
-        // }
+        //Limit the list to a certain number of items, if desired
+        if (recentlyViewedReferences.length > 10) {
+          recentlyViewedReferences.removeLast();
+        }
 
         await _firestore.collection('users').doc(currentUser.email).update({
           'recentlyViewed': recentlyViewedReferences,
