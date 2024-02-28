@@ -109,29 +109,81 @@ class UserDataService {
     return [];
   }
 
-  Future<void> addRecentlyViewedDocument(DocumentReference documentReference) async {
-    try {
-      User? currentUser = _auth.currentUser;
 
-      if (currentUser != null) {
-        DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-            await _firestore.collection('users').doc(currentUser.email).get();
+// Future<void> addRecentlyViewedDocument(DocumentReference documentReference) async {
+//   try {
+//     User? currentUser = _auth.currentUser;
 
-        if (userSnapshot.exists) {
-          List<DocumentReference> recentlyViewedReferences = List<DocumentReference>.from(
-              userSnapshot.data()?['recentlyViewed'] ?? <DocumentReference>[]);
-          recentlyViewedReferences.add(documentReference);
+//     if (currentUser != null) {
+//       DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+//           await _firestore.collection('users').doc(currentUser.email).get();
 
-          await _firestore.collection('users').doc(currentUser.email).update({
-            'recentlyViewed': recentlyViewedReferences,
-          });
+//       if (userSnapshot.exists) {
+//         List<DocumentReference> recentlyViewedReferences = List<DocumentReference>.from(
+//             userSnapshot.data()?['recentlyViewed'] ?? <DocumentReference>[]);
+        
+//         // Remove any existing reference with the same email
+//         recentlyViewedReferences.removeWhere((ref) => ref.id == documentReference.id);
+        
+//         // Insert the new document reference at the beginning of the list
+//         recentlyViewedReferences.insert(0, documentReference);
+
+//         // Limit the list to a certain number of items, if desired
+//         if (recentlyViewedReferences.length > 10) {
+//           recentlyViewedReferences.removeLast();
+//         }
+
+//         await _firestore.collection('users').doc(currentUser.email).update({
+//           'recentlyViewed': recentlyViewedReferences,
+//         });
+//       }
+//     }
+//   } catch (e) {
+//     print('Error adding recently viewed document: $e');
+//   }
+// }
+
+Future<void> addRecentlyViewedDocument(DocumentReference documentReference) async {
+  try {
+    User? currentUser = _auth.currentUser;
+
+    if (currentUser != null) {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+          await _firestore.collection('users').doc(currentUser.email).get();
+
+      if (userSnapshot.exists) {
+        List<DocumentReference> recentlyViewedReferences = List<DocumentReference>.from(
+            userSnapshot.data()?['recentlyViewed'] ?? <DocumentReference>[]);
+
+        // Get the email of the new document reference
+        String? newDocEmail = (await documentReference.get()).get('email') as String?;
+
+        // Remove any existing reference with the same email as the new document
+        for (int i = 0; i < recentlyViewedReferences.length; i++) {
+          String? refEmail = (await recentlyViewedReferences[i].get()).get('email') as String?;
+          if (refEmail == newDocEmail) {
+            recentlyViewedReferences.removeAt(i);
+            break; // Exit the loop after removing the first matching reference
+          }
         }
+
+        // Insert the new document reference at the beginning of the list
+        recentlyViewedReferences.insert(0, documentReference);
+
+        // Limit the list to a certain number of items, if desired
+        // if (recentlyViewedReferences.length > 10) {
+        //   recentlyViewedReferences.removeLast();
+        // }
+
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'recentlyViewed': recentlyViewedReferences,
+        });
       }
-    } catch (e) {
-      print('Error adding recently viewed document: $e');
     }
-  }
+  } catch (e) {
+    print('Error adding recently viewed document: $e');}
 }
 
 
 
+}
