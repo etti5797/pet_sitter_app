@@ -7,6 +7,7 @@ import 'package:country_state_city/country_state_city.dart'
     as country_state_city;
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ExploreScreen extends StatefulWidget {
   @override
@@ -15,16 +16,22 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   String selectedCity = ''; // Variable to hold the selected city
+  String selectedDistrict = ''; // Variable to hold the selected district
+
 
   @override
-  void initState() {
-    super.initState();
-    _getUserCity().then((city) {
-      setState(() {
-        selectedCity = city;
-      });
+void initState() {
+  super.initState();
+  _getUserCity().then((city) {
+    setState(() {
+      selectedCity = city;
     });
-  }
+  });
+}
+
+
+
+
 
   Future<String> _getUserCity() async {
     return UserDataService().getUserCity();
@@ -116,6 +123,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             itemSubmitted: (suggestion) {
               setState(() {
                 selectedCity = (suggestion as country_state_city.City).name;
+
               });
             },
             textInputAction: TextInputAction.done,
@@ -169,39 +177,68 @@ class _ExploreScreenState extends State<ExploreScreen> {
 //   );
 // }
 
-  Widget _buildPetSitterCards() {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance
-        .collection('petSitters')
-        .orderBy('city')
-        .where('city', isEqualTo: selectedCity)
-        .snapshots(),
+Widget _buildPetSitterCards() {
+  return StreamBuilder(
+    stream: FirebaseFirestore.instance
+      .collection('city_district_mapping')
+      .orderBy('city')
+      .where('city', isEqualTo: selectedCity)
+      .snapshots(),
 
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return CircularProgressIndicator();
-        }
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+        
+      }
+      if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      }
 
-        var petSitters = snapshot.data?.docs;
+      var districtData = snapshot.data?.docs;
+      if (districtData == null || districtData.isEmpty) {
+        return Text('no pet sitters near your area.');
+      }
 
-        return GridView.builder(
-          shrinkWrap: true,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-          ),
-          itemCount: petSitters!.length,
-          itemBuilder: (context, index) {
-            var petSitter = petSitters[index];
-            var petSitterPets = petSitter['pets'];
-            String petType = getPetTypeFromList(petSitterPets);
-            return PetSitterCard(
-              name: petSitter['name'],
-              petType: petType, // Pass the folderName to the PetSitterCard
-              city: petSitter['city'],
-              email: petSitter['email'],
-              imagePath: petSitter['image'],
+      var district = districtData[0]['district'];
+
+      return StreamBuilder(
+        stream: FirebaseFirestore.instance
+          .collection('petSitters')
+          .orderBy('district')
+          .where('district', isEqualTo: district)
+          .snapshots(),
+
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          }
+
+          var petSitters = snapshot.data?.docs;
+          if (petSitters == null || petSitters.isEmpty) {
+            return Text('no pet sitters near your area.');
+          }
+
+          return GridView.builder(
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+            ),
+            itemCount: petSitters.length,
+            itemBuilder: (context, index) {
+              var petSitter = petSitters[index];
+              var petSitterPets = petSitter['pets'];
+              String petType = getPetTypeFromList(petSitterPets);
+              return PetSitterCard(
+                name: petSitter['name'],
+                petType: petType,
+                city: petSitter['city'],
+                email: petSitter['email'],
+                imagePath: petSitter['image'],
               // details: petSitter['details'],
             );
           },
@@ -209,6 +246,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
       },
     );
   }
-
-
+  );
+}
 }

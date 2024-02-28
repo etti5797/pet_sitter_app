@@ -57,15 +57,17 @@ class _HomePageState extends State<HomePage> {
                         color: const Color.fromARGB(255, 255, 255, 255),
                         fontWeight: FontWeight.bold)),
                 SizedBox(width: 170),
-                IconButton(
-                  icon: Icon(Icons.arrow_forward_rounded),
-                  color: Colors.white,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>HomePageWithLogin.HomePageWithLogin()),
-                    );
-                  },
+                Expanded(
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_forward_rounded),
+                    color: Colors.white,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePageWithLogin.HomePageWithLogin()),
+                      );
+                    },
+                  ),
                 )
               ],
             ),

@@ -41,6 +41,7 @@ class _SignUpPageState extends State<SignUpPage> {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
+      
 
       final UserCredential userCredential =
           await _auth.signInWithCredential(credential);
@@ -69,6 +70,18 @@ class _SignUpPageState extends State<SignUpPage> {
             'image': randomImagePath,
           });
         } 
+
+        // Save city-district mapping to Firestore
+        final cityDistrictMappingRef = _firestore.collection('city_district_mapping').doc(_city);
+        final cityDistrictMappingSnapshot = await cityDistrictMappingRef.get();
+
+        if (!cityDistrictMappingSnapshot.exists) {
+          await cityDistrictMappingRef.set({
+            'city' : _city,
+            'district': _district,
+          });
+        }
+
 
        //TODO:  // Navigate to home page or any other page
         // after successful sign-up
@@ -132,8 +145,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _name = value!;
+               onSaved: (value) {
+                 _name = value!;
                 },
               ),
               SizedBox(height: 20.0),
@@ -169,8 +182,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 stateDropdownLabel: "*State",
                 cityDropdownLabel: "*City",
 
-                ///Default Country
-                defaultCountry: CscCountry.Israel,
+                // ///Default Country
+                // defaultCountry: CscCountry.Israel,
 
                 ///Disable country dropdown (Note: use it with default country)
                 disableCountry: false,

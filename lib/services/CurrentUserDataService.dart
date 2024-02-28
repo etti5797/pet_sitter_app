@@ -28,7 +28,7 @@ class UserDataService {
 
       return 'Unknown'; // Default value if user or user data not found
     } catch (e) {
-      print('Error fetching user city: $e');
+      print('Error fetching user name: $e');
       return 'Error'; // Handle errors as needed
     }
   }
@@ -39,7 +39,7 @@ class UserDataService {
 
       if (user != null) {
         DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.email).get();
-
+    
         if (userDoc.exists) {
           // Adjust this based on your Firestore document structure
           String userCity = userDoc['city']; // Replace 'city' with the actual field name in your Firestore document
