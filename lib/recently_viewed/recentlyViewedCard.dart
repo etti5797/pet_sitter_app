@@ -75,7 +75,7 @@ Widget build(BuildContext context) {
           ],
         ),
         trailing: IconButton(
-          icon: Icon(Icons.add_comment),
+          icon: Icon( Icons.comment_outlined/*Icons.add_comment*/),    
           onPressed: () {
             // Add feedback functionality here
             showDialog(
