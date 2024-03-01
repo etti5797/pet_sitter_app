@@ -57,6 +57,7 @@ class _SignUpPageState extends State<SignUpPage> {
           'email': user.email,
           'city': _city,
           'district': _district,
+          'favorites' : [],
         });
         if(isSpecialUser){
           await _firestore.collection('petSitters').doc(user.email).set({

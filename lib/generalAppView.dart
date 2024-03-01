@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petsitter/recently_viewed/recentlyViewedScreen.dart';
-import 'package:petsitter/tempFiles/favorites.dart';
+import 'package:petsitter/favoritesPage/favorites_screen.dart';
 import 'package:petsitter/discover_sitters/exploreScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 

@@ -85,17 +85,17 @@ class _PetSitterCardState extends State<PetSitterCard> {
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isFavorite = !isFavorite;
-                        });
-                      },
-                      child: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? Colors.red : null,
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     setState(() {
+                    //       isFavorite = !isFavorite;
+                    //     });
+                    //   },
+                    //   child: Icon(
+                    //     isFavorite ? Icons.favorite : Icons.favorite_border,
+                    //     color: isFavorite ? Colors.red : null,
+                    //   ),
+                    // ),
                   ],
                 ),
                 Row(

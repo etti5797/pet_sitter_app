@@ -188,6 +188,176 @@ Future<void> addRecentlyViewedDocument(DocumentReference documentReference) asyn
     print('Error adding recently viewed document: $e');}
 }
 
+// handle favorites:
+
+// Future<List<DocumentSnapshot<Map<String, dynamic>>>> getFavoriteDocuments() async {
+//     try {
+//       User? currentUser = _auth.currentUser;
+
+//       if (currentUser != null) {
+//         DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+//             await _firestore.collection('users').doc(currentUser.email).get();
+
+//         if (userSnapshot.exists) {
+//           List<DocumentReference> favoriteReferences = List<DocumentReference>.from(
+//               userSnapshot.data()?['favorites'] ?? <DocumentReference>[]);
+
+//           List<DocumentSnapshot<Map<String, dynamic>>> favoriteDocuments = [];
+
+//           for (DocumentReference reference in favoriteReferences) {
+//             DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await reference.get() as DocumentSnapshot<Map<String, dynamic>>;
+//             favoriteDocuments.add(documentSnapshot);
+//           }
+
+//           return favoriteDocuments;
+//         }
+//       }
+//     } catch (e) {
+//       print('Error fetching favorite documents: $e');
+//     }
+
+//     return [];
+//   }
+
+//   Future<void> removeFavoriteDocument(DocumentReference documentReference) async {
+//     try {
+//       User? currentUser = _auth.currentUser;
+
+//       if (currentUser != null) {
+//         DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+//             await _firestore.collection('users').doc(currentUser.email).get();
+
+//         if (userSnapshot.exists) {
+//           List<DocumentReference> favoriteReferences = List<DocumentReference>.from(
+//               userSnapshot.data()?['favorites'] ?? <DocumentReference>[]);
+
+//           // Remove the document reference from favorites
+//           favoriteReferences.remove(documentReference);
+
+//           await _firestore.collection('users').doc(currentUser.email).update({
+//             'favorites': favoriteReferences,
+//           });
+//         }
+//       }
+//     } catch (e) {
+//       print('Error removing favorite document: $e');
+//     }
+//   }
+
+Future<void> addFavoriteDocuments(DocumentReference documentReference) async {
+  try {
+    User? currentUser = _auth.currentUser;
+
+    if (currentUser != null) {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+          await _firestore.collection('users').doc(currentUser.email).get();
+
+      if (userSnapshot.exists) {
+        List<DocumentReference> favoritedReferences = List<DocumentReference>.from(
+            userSnapshot.data()?['favorites'] ?? <DocumentReference>[]);
+
+        // Get the email of the new document reference
+        String? newDocEmail = (await documentReference.get()).get('email') as String?;
+
+        // Remove any existing reference with the same email as the new document
+        for (int i = 0; i < favoritedReferences.length; i++) {
+          String? refEmail = (await favoritedReferences[i].get()).get('email') as String?;
+          if (refEmail == newDocEmail) {
+            favoritedReferences.removeAt(i);
+            break; // Exit the loop after removing the first matching reference
+          }
+        }
+
+        // Insert the new document reference at the beginning of the list
+        if( newDocEmail!= currentUser.email)
+        {
+          favoritedReferences.insert(0, documentReference);
+        }
+        
+
+        //Limit the list to a certain number of items, if desired
+        if (favoritedReferences.length > 30) {
+          favoritedReferences.removeLast();
+        }
+
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'favorites': favoritedReferences,
+        });
+      }
+    }
+  } catch (e) {
+    print('Error adding favorite document: $e');}
+}
+
+
+
+  Future<List<DocumentSnapshot<Map<String, dynamic>>>> getFavoriteDocuments() async {
+    try {
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+            await _firestore.collection('users').doc(currentUser.email).get();
+
+        if (userSnapshot.exists) {
+          List<DocumentReference> favoriteReferences = List<DocumentReference>.from(
+              userSnapshot.data()?['favorites'] ?? <DocumentReference>[]);
+              
+          List<DocumentSnapshot<Map<String, dynamic>>> favoritesDocuments = [];
+
+          for (DocumentReference reference in favoriteReferences) {
+            DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await reference.get() as DocumentSnapshot<Map<String, dynamic>>;
+            favoritesDocuments.add(documentSnapshot);
+          }
+
+          return favoritesDocuments;
+        }
+      }
+    } catch (e) {
+      print('Error fetching favorite viewed documents: $e');
+    }
+
+    return [];
+  }
+
+  
+
+
+  Future<void> removeFavoriteDocument(DocumentReference documentReference) async {
+  try {
+    User? currentUser = _auth.currentUser;
+
+    if (currentUser != null) {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+          await _firestore.collection('users').doc(currentUser.email).get();
+
+      if (userSnapshot.exists) {
+        List<DocumentReference> favoritedReferences = List<DocumentReference>.from(
+            userSnapshot.data()?['favorites'] ?? <DocumentReference>[]);
+
+        // Get the email of the document reference to be removed
+        String? docToRemoveEmail = (await documentReference.get()).get('email') as String?;
+
+        // Find and remove the document reference with the matching email
+        for (int i = 0; i < favoritedReferences.length; i++) {
+          String? refEmail = (await favoritedReferences[i].get()).get('email') as String?;
+          if (refEmail == docToRemoveEmail) {
+            favoritedReferences.removeAt(i);
+            break; // Exit the loop after removing the first matching reference
+          }
+        }
+
+        // Update the user's favorites list in Firestore
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'favorites': favoritedReferences,
+        });
+      }
+    }
+  } catch (e) {
+    print('Error removing favorite document: $e');
+  }
+}
+
 
 
 }
