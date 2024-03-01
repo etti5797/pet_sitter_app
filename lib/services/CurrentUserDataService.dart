@@ -168,7 +168,11 @@ Future<void> addRecentlyViewedDocument(DocumentReference documentReference) asyn
         }
 
         // Insert the new document reference at the beginning of the list
-        recentlyViewedReferences.insert(0, documentReference);
+        if( newDocEmail!= currentUser.email)
+        {
+          recentlyViewedReferences.insert(0, documentReference);
+        }
+        
 
         //Limit the list to a certain number of items, if desired
         if (recentlyViewedReferences.length > 10) {

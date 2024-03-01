@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "79441047175-fa5fs8s3ukpichufjcfp3lq4okb8d2gr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.petsitter",
+            "certificate_hash": "0869a92b46e6da4ab49a737ffb22416bcb2af7e0"
+          }
+        },
+        {
           "client_id": "79441047175-juslaiqlo9fl6f2gjffss64q5lqpe7af.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
