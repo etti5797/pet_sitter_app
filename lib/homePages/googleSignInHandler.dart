@@ -12,7 +12,19 @@ class GoogleSignInHandler {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     final GoogleSignIn _googleSignIn = GoogleSignIn();
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
     try {
+      // Show circular loading indicator while sign-in is in progress
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Prevent users from dismissing the dialog
+        builder: (BuildContext context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
@@ -25,19 +37,22 @@ class GoogleSignInHandler {
       final DocumentSnapshot doc =
           await _firestore.collection('users').doc(googleUser.email).get();
       if (!doc.exists) {
+        Navigator.pop(context); // Dismiss loading indicator dialog
         showSignUpDialog(
             context, 'You need to sign up before signing in with Google.');
       } else {
+        Navigator.pop(context); // Dismiss loading indicator dialog
         Navigator.push(context, MaterialPageRoute(builder: (context) => GeneralAppPage()));
         return true;
       }
     } catch (error) {
       print("Got error: ${error.toString()}");
+      Navigator.pop(context); // Dismiss loading indicator dialog
       showSignUpDialog(context, 'Got error: ${error.toString()}');
-    } finally {
-      return false;
     }
-  }
+    return false;
+    
+    }
 
   void showSignUpDialog(BuildContext context, String message) {
     showDialog(

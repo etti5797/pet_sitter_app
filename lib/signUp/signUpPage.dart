@@ -29,9 +29,13 @@ class _SignUpPageState extends State<SignUpPage> {
   String? _district = '';
   String _gender = '';
   List<String> _pets = [];
+  bool _isLoading = false;
 
 
   Future<void> _signUpWithGoogle() async {
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth =
@@ -93,6 +97,11 @@ class _SignUpPageState extends State<SignUpPage> {
       // Handle sign-up with Google error
       print('Sign-up with Google error: $e');
     }
+    finally {
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
+    }
   }
 
   @override
@@ -116,7 +125,8 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Form(
+        child: 
+        Form(
           key: _formKey,
           child: Column(
             children: [
@@ -292,7 +302,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         // Show an error message or prompt the user to answer the questions
                       }
                     } else {
-                      _signUpWithGoogle();
+                      _signUpWithGoogle();                
                     }
                   }
                 },
