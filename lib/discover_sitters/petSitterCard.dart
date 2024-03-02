@@ -49,7 +49,9 @@ class _PetSitterCardState extends State<PetSitterCard> {
               //TODO: Navigate to the pet sitter's profile
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PetSitterProfile(petSitterId: widget.email)),
+                MaterialPageRoute(builder: (context) => PetSitterProfile(petSitterId: widget.email, 
+                onRemove: null,
+              ))
               );
             },
             child: ClipRRect(
@@ -62,7 +64,6 @@ class _PetSitterCardState extends State<PetSitterCard> {
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      // image: loadRandomImage(widget.petType).image,
                       image: Image.asset(widget.imagePath).image,
                       fit: BoxFit.cover,
                     ),

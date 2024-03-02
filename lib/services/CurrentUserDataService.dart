@@ -358,6 +358,35 @@ Future<void> addFavoriteDocuments(DocumentReference documentReference) async {
   }
 }
 
+  Future<bool> isPetSitterFavorite(String petSitterId) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userData = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.email)
+            .get();
+        if (userData.exists) {
+          List<dynamic> userFavorites = [];
+          // var userData = snapshot.data;
+          if (userData['favorites'] != null) {
+            var favoritesData = userData['favorites'];
+            if (favoritesData != null && favoritesData is List<dynamic>) {
+              userFavorites = favoritesData;
+            }
+          }
+          DocumentReference petSitterReference = FirebaseFirestore.instance
+              .collection('petSitters')
+              .doc(petSitterId);
+          return userFavorites.contains(petSitterReference);
+        }
+      }
+      return false;
+    } catch (e) {
+      print('Error checking favorite status: $e');
+      return false;
+    }
+  }
 
 
 }

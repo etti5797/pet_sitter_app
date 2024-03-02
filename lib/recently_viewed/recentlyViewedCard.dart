@@ -28,7 +28,10 @@ Widget build(BuildContext context) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PetSitterProfile(petSitterId: email),
+          builder: (context) => PetSitterProfile(petSitterId: email,
+          onRemove: () {
+            
+          },),
         ),
       );
     },
