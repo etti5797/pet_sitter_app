@@ -25,35 +25,34 @@ class ReviewCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                                Icon(
-                  Icons.feedback, // Replace with your custom feedback icon
+                Icon(
+                  Icons
+                      .account_circle, // Replace with your custom feedback icon
                   color: Colors.grey,
+                  size: 50, // Adjust the size as per your requirement
                 ),
-                Text(
-                  review['reviewerName'],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      review['reviewerName'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Text(
+                      review['timestamp'].toDate().toString().split(' ')[0],
+                    ),
+                  ],
                 ),
-
               ],
             ),
             SizedBox(height: 8),
             Text(
               review['reviewText'],
               style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  review['timestamp'].toDate().toString().split(' ')[0],
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                // Add more information or icons as needed
-              ],
             ),
           ],
         ),

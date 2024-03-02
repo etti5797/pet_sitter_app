@@ -1,4 +1,7 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 import '../pet_sitters_images_handler/pickImageForPetSitter.dart';
 import 'package:petsitter/services/PetSitterService.dart';
@@ -19,13 +22,11 @@ class PetSitterProfile extends StatefulWidget {
   _PetSitterProfileState createState() => _PetSitterProfileState();
 }
 
-//bool isFavorite = false;
 class _PetSitterProfileState extends State<PetSitterProfile> {
   bool isFavorite = false;
   var reviews = [];
   var favorites = [];
-
-  // Future<bool> isPetSitterFavorite = UserDataService().isPetSitterFavorite(widget.petSitterId);
+  var _petSitterData;
 
   Future<void> toggleFavoriteStatus() async {
     try {
@@ -64,41 +65,59 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 201, 160, 106),
-        title: Text(
-          'Pet Sitter Information',
-          style: GoogleFonts.pacifico(
-              fontSize: 30, color: const Color.fromARGB(255, 255, 255, 255)),
-        ),
-        centerTitle: true,
-      ),
-      body: FutureBuilder(
-        future: fetchPetSitterData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            final petSitterData = snapshot.data as Map<String, dynamic>;
+    return FutureBuilder(
+      future: fetchPetSitterData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        }
+        _petSitterData = snapshot.data;
 
-            var petTypes = List<String>.from(petSitterData['pets']);
-            String allPets = getPetTypeFromList(petTypes);
-            return Container(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(petSitterData['image']),
-                  SizedBox(height: 16),
-                  Row(
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: const Color.fromARGB(255, 201, 160, 106),
+            title: Text(
+              'Pet Sitter Profile',
+              style: GoogleFonts.pacifico(
+                fontSize: 30,
+                color: const Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+            centerTitle: true,
+          ),
+          body: Card(
+            margin: EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Image and Name
+                Container(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
                     children: [
+                      CircleAvatar(
+                        radius: 100,
+                        backgroundImage: AssetImage(_petSitterData!['image']),
+                      ),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _petSitterData['name'],
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 6),
                       IconButton(
                         icon: FutureBuilder<bool>(
                           future: UserDataService().isPetSitterFavorite(widget.petSitterId),
@@ -129,79 +148,89 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                           toggleFavoriteStatus();
                         },
                       ),
-                      // Heart icon
-                      // IconButton(
-                      //   icon: Icon(
-                      //     isFavorite ? Icons.favorite : Icons.favorite_border,
-                      //     color: isFavorite ? Colors.red : null,
-                      //   ),
-                      //   onPressed: () {
-                      //     setState(() {
-                      //       isFavorite = !isFavorite;
-                      //     });
-                      //    // UserDataService().getFavoriteDocuments();
-                      //    if(isFavorite == false)
-                      //    {
-                      //     addToFavorites();
-                      //    }
-                      //    else
-                      //    {
-                      //      removeFromFavorites();
-                      //    }
-                      //   },
-                      // ),
-                      SizedBox(width: 8),
-                      Text(
-                        petSitterData['name'],
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  // Display name and city with location icon
-                  Row(
+                ),
+                // Tab Controller
+                DefaultTabController(
+                  length: 2,
+                  child: Column(
                     children: [
-                      Icon(Icons.location_on),
-                      Text(
-                        petSitterData['city'],
-                        style: TextStyle(fontSize: 16),
+                      // Tab Bar
+                      TabBar(
+                        tabs: [
+                          Tab(text: 'Information'),
+                          Tab(text: 'Feedbacks'),
+                        ],
+                      ),
+                      // Tab Bar View
+                      Container(
+                        height: 260, // Set a fixed height
+                        child: TabBarView(
+                          children: [
+                            // Information Tab
+                            Container(
+                              child: ListView(
+                                padding: EdgeInsets.all(16),
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center, // Center the location horizontally
+                                    children: [
+                                      Icon(Icons.location_on),
+                                      Text(
+                                        _petSitterData['city'],
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    textAlign: TextAlign.center,
+                                    'Responsibilities: ${_petSitterData['pets'].join(', ')}',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Feedbacks Tab
+                            Container(
+                              padding: EdgeInsets.all(16),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: List.generate(
+                                    reviews.length,
+                                    (index) {
+                                      final review = reviews[index];
+                                      return ReviewCard(review: review);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
-                  // Display pets
-                  Text(
-                    'Responsibilities: ${petSitterData['pets'].join(', ')}',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(
-                        reviews.length,
-                        (index) {
-                          final review = reviews[index];
-                          return ReviewCard(review: review);
-                        },
-                      ),
-                    ),
-                  ),
-                  // Show contact info button
-                  ElevatedButton(
-                    onPressed: () {
-                      showContactInfo(context, petSitterData['email'],
-                          petSitterData['phoneNumber']);
-                      addToRecentlyViewed();
-                    },
-                    child: Text('Show contact info'),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
-      ),
+                ),
+                // Show contact info button at the bottom
+                FloatingActionButton(
+                  onPressed: () {
+                    showContactInfo(context, _petSitterData['email'],
+                        _petSitterData['phoneNumber']);
+                    addToRecentlyViewed();
+                  },
+                  child: Text('Show contact info'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
