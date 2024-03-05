@@ -37,6 +37,7 @@ class GoogleSignInHandler {
       final DocumentSnapshot doc =
           await _firestore.collection('users').doc(googleUser.email).get();
       if (!doc.exists) {
+        _googleSignIn.signOut();
         Navigator.pop(context); // Dismiss loading indicator dialog
         showSignUpDialog(
             context, 'You need to sign up before signing in with Google.');
@@ -46,6 +47,7 @@ class GoogleSignInHandler {
         return true;
       }
     } catch (error) {
+      _googleSignIn.signOut();
       print("Got error: ${error.toString()}");
       Navigator.pop(context); // Dismiss loading indicator dialog
       showSignUpDialog(context, 'Got error while signing in with Google');

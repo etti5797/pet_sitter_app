@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "435668794455-nbo72uk1bg4c2oeafpm7hdh3p95es425.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.technion.petsitter",
+            "certificate_hash": "adb9bacc2a24b01463e006c3ed46e1719b3ad808"
+          }
+        },
+        {
           "client_id": "435668794455-rfomddceuso41fp00flqn7ts9hjvp4pk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

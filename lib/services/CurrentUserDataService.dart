@@ -11,7 +11,7 @@ class UserDataService {
 
     Future<String> getUserName() async {
     try {
-      if(userName.isNotEmpty){
+      if(userName.isNotEmpty && userName != 'Unknown'){
         return userName;
       }
 

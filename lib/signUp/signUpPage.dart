@@ -29,13 +29,14 @@ class _SignUpPageState extends State<SignUpPage> {
   String _gender = '';
   List<String> _pets = [];
   bool _isLoading = false;
+  User? user;
 
   Future<void> _signUpWithGoogle() async {
     setState(() {
       _isLoading = true; // Show loading indicator
     });
     try {
-            // Show circular loading indicator while sign-in is in progress
+      // Show circular loading indicator while sign-in is in progress
       showDialog(
         context: context,
         barrierDismissible: false, // Prevent users from dismissing the dialog
@@ -57,25 +58,23 @@ class _SignUpPageState extends State<SignUpPage> {
 
       final UserCredential userCredential =
           await _auth.signInWithCredential(credential);
-      final User? user = userCredential.user;
+      user = userCredential.user;
 
-
-      
       if (user != null) {
         // Save user data to Firestore
-        await _firestore.collection('users').doc(user.email).set({
+        await _firestore.collection('users').doc(user!.email).set({
           'name': "$_firstName $_lastName",
-          'email': user.email,
+          'email': user!.email,
           'city': _city,
           'district': _district,
           'favorites': [],
         });
         if (isSpecialUser) {
-        String petType = getPetTypeFromList(_pets);
-        String randomImagePath = getRandomImageUrl(petType);
-          await _firestore.collection('petSitters').doc(user.email).set({
+          String petType = getPetTypeFromList(_pets);
+          String randomImagePath = getRandomImageUrl(petType);
+          await _firestore.collection('petSitters').doc(user!.email).set({
             'name': "$_firstName $_lastName",
-            'email': user.email,
+            'email': user!.email,
             'city': _city,
             'district': _district,
             'phoneNumber': _phoneNumber,
@@ -101,8 +100,16 @@ class _SignUpPageState extends State<SignUpPage> {
             context, MaterialPageRoute(builder: (context) => GeneralAppPage()));
       }
     } catch (e) {
+      _googleSignIn.signOut();
       // Handle sign-up with Google error
       print('Sign-up with Google error: $e');
+      if (user != null) {
+        // Remove the data that was saved to the database
+        await _firestore.collection('users').doc(user!.email).delete();
+        if (isSpecialUser) {
+          await _firestore.collection('petSitters').doc(user!.email).delete();
+        }
+      }
       Navigator.pop(context); // Dismiss loading indicator dialog
       showSignUpDialog(context, 'Got error while signing up with Google');
     } finally {

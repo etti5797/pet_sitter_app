@@ -11,13 +11,13 @@ List<String> dogImages = [
   'images/dogs/dog1.jpeg',
   'images/dogs/dog2.jpeg',
   'images/dogs/dog3.jpeg',
-  'images/dogs/dog4.PNG',
-  'images/dogs/dog5.PNG',
-  'images/dogs/dog6.PNG',
-  'images/dogs/dog7.PNG',
-  'images/dogs/dog8.PNG',
-  'images/dogs/dog9.PNG',
-  'images/dogs/dog10.PNG',
+  'images/dogs/dog4.png',
+  'images/dogs/dog5.png',
+  'images/dogs/dog6.png',
+  'images/dogs/dog7.png',
+  'images/dogs/dog8.png',
+  'images/dogs/dog9.png',
+  'images/dogs/dog10.png',
 ];
 
 List<String> dogsCatsImages = [

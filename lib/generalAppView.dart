@@ -5,6 +5,7 @@ import 'package:petsitter/favoritesPage/favorites_screen.dart';
 import 'package:petsitter/discover_sitters/exploreScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petsitter/profiles/RegularUserProfile.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class GeneralAppPage extends StatefulWidget {
   final int initialIndex;
@@ -17,6 +18,7 @@ class GeneralAppPage extends StatefulWidget {
 
 class _GeneralAppPageState extends State<GeneralAppPage> {
   int _currentIndex = 0;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   final List<Widget> _screens = [
     ExploreScreen(),
     RecentlyViewedScreen(),
@@ -48,6 +50,7 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
             onPressed: () {
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => HomePageWithLogin()));
+                  _googleSignIn.signOut();
             },
           ),
         ],
