@@ -5,6 +5,10 @@ import 'package:petsitter/discover_sitters/exploreScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class GeneralAppPage extends StatefulWidget {
+  final int initialIndex;
+
+  GeneralAppPage({this.initialIndex = 0});
+
   @override
   _GeneralAppPageState createState() => _GeneralAppPageState();
 }
@@ -16,6 +20,12 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
     RecentlyViewedScreen(),
     FavoritesScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {

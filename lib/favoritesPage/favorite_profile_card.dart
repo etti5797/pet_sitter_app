@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart'
     as currentUserDataService;
 import 'package:petsitter/discover_sitters/petSitterProfile.dart';
+import 'package:petsitter/favoritesPage/favorites_screen.dart';
+import 'package:petsitter/generalAppView.dart';
 
 class FavoriteCard extends StatefulWidget {
   final DocumentSnapshot<Map<String, dynamic>> petSitterSnapshot;
@@ -38,17 +40,20 @@ class _FavoriteCardState extends State<FavoriteCard> {
             isFavorite ? Icons.favorite : Icons.favorite_border,
             color: isFavorite ? Colors.red : null,
           ),
-          onPressed: () {
+          onPressed: () async {
             // Handle favorite toggle logic here
             if (!isFavorite) {
-              currentUserDataService.UserDataService()
+              await currentUserDataService.UserDataService()
                   .addFavoriteDocuments(widget.petSitterSnapshot.reference);
             } else {
-              currentUserDataService.UserDataService()
+              await currentUserDataService.UserDataService()
                   .removeFavoriteDocument(widget.petSitterSnapshot.reference);
             }
             setState(() {
               isFavorite = !isFavorite;
+              //Navigator.pop(context);
+              Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => GeneralAppPage(initialIndex: 2,)));
             });
             // Trigger the onRemove callback
             // if (widget.onRemove != null) {
