@@ -46,30 +46,38 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           SizedBox(height: 16),
-          Container(
-            color: const Color.fromARGB(255, 201, 160, 106), // Set the desired color
-            child: Row(
-              children: [
-                SizedBox(width: 20),
-                Text('Continue to the app',
-                    style: GoogleFonts.abel(
-                        fontSize: 20,
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontWeight: FontWeight.bold)),
-                SizedBox(width: 170),
-                Expanded(
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_forward_rounded),
-                    color: Colors.white,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePageWithLogin.HomePageWithLogin()),
-                      );
-                    },
-                  ),
-                )
-              ],
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomePageWithLogin.HomePageWithLogin()),
+              );
+            },
+            child: Container(
+              color: const Color.fromARGB(255, 201, 160, 106), // Set the desired color
+              child: Row(
+                children: [
+                  SizedBox(width: 20),
+                  Text('Continue to the app',
+                      style: GoogleFonts.abel(
+                          fontSize: 20,
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.bold)),
+                  SizedBox(width: 170),
+                  Expanded(
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_forward_rounded),
+                      color: Colors.white,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePageWithLogin.HomePageWithLogin()),
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:petsitter/discover_sitters/petSitterProfile.dart';
+import 'package:petsitter/profiles/petSitterProfile.dart';
 import '../pet_sitters_images_handler/pickImageForPetSitter.dart';
 import 'package:petsitter/utils/utils.dart' as utils;
 

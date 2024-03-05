@@ -6,6 +6,7 @@ class UserDataService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String userEmail = ''; //in order not to get the email from the database every time
   String userName = ''; //in order not to get the name from the database every time
+  String userImage = '';
 
 
     Future<String> getUserName() async {

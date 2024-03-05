@@ -48,7 +48,7 @@ class GoogleSignInHandler {
     } catch (error) {
       print("Got error: ${error.toString()}");
       Navigator.pop(context); // Dismiss loading indicator dialog
-      showSignUpDialog(context, 'Got error: ${error.toString()}');
+      showSignUpDialog(context, 'Got error while signing in with Google');
     }
     return false;
     

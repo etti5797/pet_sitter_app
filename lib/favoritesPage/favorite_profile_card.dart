@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart'
     as currentUserDataService;
-import 'package:petsitter/discover_sitters/petSitterProfile.dart';
+import 'package:petsitter/profiles/petSitterProfile.dart';
 import 'package:petsitter/favoritesPage/favorites_screen.dart';
 import 'package:petsitter/generalAppView.dart';
 

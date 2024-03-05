@@ -50,7 +50,12 @@ class FavoritesScreenState extends State<FavoritesScreen> {
                 currentUserDataService.UserDataService().getFavoriteDocuments(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                 return Container(
+                    alignment: Alignment.center,
+                    height: 50, // Specify the desired height
+                    width: 50, // Specify the desired width
+                    child: CircularProgressIndicator(),
+                  );
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

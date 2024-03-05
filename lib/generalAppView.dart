@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:petsitter/homePages/homePageWithLogin';
 import 'package:petsitter/recently_viewed/recentlyViewedScreen.dart';
 import 'package:petsitter/favoritesPage/favorites_screen.dart';
 import 'package:petsitter/discover_sitters/exploreScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:petsitter/profiles/RegularUserProfile.dart';
 
 class GeneralAppPage extends StatefulWidget {
   final int initialIndex;
@@ -19,6 +21,7 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
     ExploreScreen(),
     RecentlyViewedScreen(),
     FavoritesScreen(),
+    UserProfile(),
   ];
 
   @override
@@ -43,7 +46,8 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => HomePageWithLogin()));
             },
           ),
         ],
@@ -51,6 +55,7 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color.fromARGB(255, 201, 160, 106),
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -69,6 +74,10 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Favorites',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Profile',
           ),
         ],
       ),

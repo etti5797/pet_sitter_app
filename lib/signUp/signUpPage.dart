@@ -5,9 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petsitter/pet_sitters_images_handler/pickImageForPetSitter.dart';
 import '../utils/utils.dart';
-// import 'package:country_state_city/country_state_city.dart' as country_state_city;
 import 'package:csc_picker/csc_picker.dart';
-// import '../signUp/utils.dart' as signUpUtils;
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../generalAppView.dart';
 import '../pet_sitters_images_handler/petSitterPetsFound.dart';
@@ -23,7 +21,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
   bool isSpecialUser = false;
-  String _name = '';
+  String _firstName = '';
+  String _lastName = '';
   String _phoneNumber = '';
   String? _city = '';
   String? _district = '';
@@ -31,12 +30,22 @@ class _SignUpPageState extends State<SignUpPage> {
   List<String> _pets = [];
   bool _isLoading = false;
 
-
   Future<void> _signUpWithGoogle() async {
     setState(() {
       _isLoading = true; // Show loading indicator
     });
     try {
+            // Show circular loading indicator while sign-in is in progress
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Prevent users from dismissing the dialog
+        builder: (BuildContext context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
@@ -45,7 +54,6 @@ class _SignUpPageState extends State<SignUpPage> {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      
 
       final UserCredential userCredential =
           await _auth.signInWithCredential(credential);
@@ -57,15 +65,15 @@ class _SignUpPageState extends State<SignUpPage> {
       if (user != null) {
         // Save user data to Firestore
         await _firestore.collection('users').doc(user.email).set({
-          'name': _name,
+          'name': "$_firstName $_lastName",
           'email': user.email,
           'city': _city,
           'district': _district,
-          'favorites' : [],
+          'favorites': [],
         });
-        if(isSpecialUser){
+        if (isSpecialUser) {
           await _firestore.collection('petSitters').doc(user.email).set({
-            'name': _name,
+            'name': "$_firstName $_lastName",
             'email': user.email,
             'city': _city,
             'district': _district,
@@ -74,34 +82,53 @@ class _SignUpPageState extends State<SignUpPage> {
             'gender': _gender,
             'image': randomImagePath,
           });
-        } 
+        }
 
         // Save city-district mapping to Firestore
-        final cityDistrictMappingRef = _firestore.collection('city_district_mapping').doc(_city);
+        final cityDistrictMappingRef =
+            _firestore.collection('city_district_mapping').doc(_city);
         final cityDistrictMappingSnapshot = await cityDistrictMappingRef.get();
 
         if (!cityDistrictMappingSnapshot.exists) {
           await cityDistrictMappingRef.set({
-            'city' : _city,
+            'city': _city,
             'district': _district,
           });
         }
 
-
-       //TODO:  // Navigate to home page or any other page
-        // after successful sign-up
-        Navigator.push(context, MaterialPageRoute(builder: (context) => GeneralAppPage()));
-
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => GeneralAppPage()));
       }
     } catch (e) {
       // Handle sign-up with Google error
       print('Sign-up with Google error: $e');
-    }
-    finally {
+      Navigator.pop(context); // Dismiss loading indicator dialog
+      showSignUpDialog(context, 'Got error while signing up with Google');
+    } finally {
       setState(() {
         _isLoading = false; // Hide loading indicator
       });
     }
+  }
+
+  void showSignUpDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Sign Up Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -125,8 +152,7 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: 
-        Form(
+        child: Form(
           key: _formKey,
           child: Column(
             children: [
@@ -138,7 +164,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Utils().buildCircularImageLocal('images/signUpPageImage.jpg', 100),
+              Utils()
+                  .buildCircularImageLocal('images/signUpPageImage.jpg', 100),
               Text(
                 'Fill your information to sign up',
                 textAlign: TextAlign.center,
@@ -149,15 +176,27 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               SizedBox(height: 10.0),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(labelText: 'First Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
+                    return 'Please enter your first name';
                   }
                   return null;
                 },
-               onSaved: (value) {
-                 _name = value!;
+                onSaved: (value) {
+                  _firstName = value!;
+                },
+              ),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Last Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your last name';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _lastName = value!;
                 },
               ),
               SizedBox(height: 20.0),
@@ -302,7 +341,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         // Show an error message or prompt the user to answer the questions
                       }
                     } else {
-                      _signUpWithGoogle();                
+                      _signUpWithGoogle();
                     }
                   }
                 },
