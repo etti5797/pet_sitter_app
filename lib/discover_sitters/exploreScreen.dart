@@ -222,6 +222,8 @@ Widget _buildPetSitterCards() {
           }
 
           return GridView.builder(
+            //scrollDirection: Axis.horizontal,
+            physics: const PageScrollPhysics(),
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
