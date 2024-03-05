@@ -1,57 +1,41 @@
 {
   "project_info": {
-    "project_number": "79441047175",
-    "project_id": "petsitter-be7e1",
-    "storage_bucket": "petsitter-be7e1.appspot.com"
+    "project_number": "435668794455",
+    "project_id": "petsitter-aae22",
+    "storage_bucket": "petsitter-aae22.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:79441047175:android:0a332fb51e2fb902005222",
+        "mobilesdk_app_id": "1:435668794455:android:c267bb425cd55159a07712",
         "android_client_info": {
-          "package_name": "com.example.petsitter"
+          "package_name": "com.technion.petsitter"
         }
       },
       "oauth_client": [
         {
-          "client_id": "79441047175-egbihfdlf7ctva37druusqs3qavtlahs.apps.googleusercontent.com",
+          "client_id": "435668794455-rfomddceuso41fp00flqn7ts9hjvp4pk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.petsitter",
+            "package_name": "com.technion.petsitter",
             "certificate_hash": "ef91b01f5e7151c3019178b01c1f95dda2ec5837"
           }
         },
         {
-          "client_id": "79441047175-fa5fs8s3ukpichufjcfp3lq4okb8d2gr.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.petsitter",
-            "certificate_hash": "0869a92b46e6da4ab49a737ffb22416bcb2af7e0"
-          }
-        },
-        {
-          "client_id": "79441047175-juslaiqlo9fl6f2gjffss64q5lqpe7af.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.petsitter",
-            "certificate_hash": "adb9bacc2a24b01463e006c3ed46e1719b3ad808"
-          }
-        },
-        {
-          "client_id": "79441047175-251otab9i3pclejphu4qqbkuh9urqoqt.apps.googleusercontent.com",
+          "client_id": "435668794455-bmuu9r2rb9dqm8oskfbeq8ab9mgmhsac.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB1GKHEub5P3RAww79YuOJBEUBXcWgDwOo"
+          "current_key": "AIzaSyDPRvQWeBRHrQC0ZFxP2n2jROs0U1UaNiU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "79441047175-251otab9i3pclejphu4qqbkuh9urqoqt.apps.googleusercontent.com",
+              "client_id": "435668794455-bmuu9r2rb9dqm8oskfbeq8ab9mgmhsac.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
