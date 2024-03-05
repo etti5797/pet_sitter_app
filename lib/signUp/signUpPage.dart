@@ -365,90 +365,91 @@ class _SignUpPageState extends State<SignUpPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Additional needed information'),
-          content: Form(
-            key:
-                _specialFormKey, // Assigning a new GlobalKey for the dialog form
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Question 1: Gender
-                DropdownButtonFormField<String>(
-                  value: null,
-                  hint: Text('Select Gender'),
-                  onChanged: (value) {
-                    _gender = value!;
-                  },
-                  items: ['Male', 'Female', 'Other']
-                      .map<DropdownMenuItem<String>>((String gender) {
-                    return DropdownMenuItem<String>(
-                      value: gender,
-                      child: Text(gender),
-                    );
-                  }).toList(),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select Gender';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 8.0),
-                // Question 2: Phone Number
-                TextFormField(
-                  controller: phoneNumberController,
-                  decoration: InputDecoration(
-                    labelText: 'Phone Number',
+        return SingleChildScrollView( // Wrap with SingleChildScrollView
+          child: AlertDialog(
+            title: Text('Additional needed information'),
+            content: Form(
+              key: _specialFormKey, // Assigning a new GlobalKey for the dialog form
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Question 1: Gender
+                  DropdownButtonFormField<String>(
+                    value: null,
+                    hint: Text('Select Gender'),
+                    onChanged: (value) {
+                      _gender = value!;
+                    },
+                    items: ['Male', 'Female', 'Other']
+                        .map<DropdownMenuItem<String>>((String gender) {
+                      return DropdownMenuItem<String>(
+                        value: gender,
+                        child: Text(gender),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select Gender';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter Phone Number';
-                    } else if (!_isValidIsraeliMobilePhoneNumber(value)) {
-                      return 'Invalid Israeli mobile phone number';
-                    }
-                    _phoneNumber = value;
-                    return null;
-                  },
-                ),
-                SizedBox(height: 8.0),
-                MultiSelectDialogField(
-                  items: ['Dogs', 'Cats']
-                      .map((pet) => MultiSelectItem<String>(pet, pet))
-                      .toList(),
-                  initialValue: selectedPets,
-                  onConfirm: (values) {
-                    selectedPets = values;
-                    _pets = values;
-                  },
-                  title: Text('Select Pets'),
-                ),
-              ],
+                  SizedBox(height: 8.0),
+                  // Question 2: Phone Number
+                  TextFormField(
+                    controller: phoneNumberController,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter Phone Number';
+                      } else if (!_isValidIsraeliMobilePhoneNumber(value)) {
+                        return 'Invalid Israeli mobile phone number';
+                      }
+                      _phoneNumber = value;
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 8.0),
+                  MultiSelectDialogField(
+                    items: ['Dogs', 'Cats']
+                        .map((pet) => MultiSelectItem<String>(pet, pet))
+                        .toList(),
+                    initialValue: selectedPets,
+                    onConfirm: (values) {
+                      selectedPets = values;
+                      _pets = values;
+                    },
+                    title: Text('Select Pets'),
+                  ),
+                ],
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  isSpecialUser = false;
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_specialFormKey.currentState!.validate()) {
-                  _specialFormKey.currentState!.save();
+            actions: [
+              TextButton(
+                onPressed: () {
                   setState(() {
-                    isSpecialUser = true;
+                    isSpecialUser = false;
                   });
                   Navigator.of(context).pop();
-                }
-              },
-              child: Text('Submit'),
-            ),
-          ],
+                },
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_specialFormKey.currentState!.validate()) {
+                    _specialFormKey.currentState!.save();
+                    setState(() {
+                      isSpecialUser = true;
+                    });
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
         );
       },
     );
