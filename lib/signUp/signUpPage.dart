@@ -59,9 +59,8 @@ class _SignUpPageState extends State<SignUpPage> {
           await _auth.signInWithCredential(credential);
       final User? user = userCredential.user;
 
-      String petType = getPetTypeFromList(_pets);
-      String randomImagePath = getRandomImageUrl(petType);
 
+      
       if (user != null) {
         // Save user data to Firestore
         await _firestore.collection('users').doc(user.email).set({
@@ -72,6 +71,8 @@ class _SignUpPageState extends State<SignUpPage> {
           'favorites': [],
         });
         if (isSpecialUser) {
+        String petType = getPetTypeFromList(_pets);
+        String randomImagePath = getRandomImageUrl(petType);
           await _firestore.collection('petSitters').doc(user.email).set({
             'name': "$_firstName $_lastName",
             'email': user.email,
