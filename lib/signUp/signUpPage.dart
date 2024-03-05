@@ -96,7 +96,7 @@ class _SignUpPageState extends State<SignUpPage> {
           });
         }
 
-        Navigator.push(
+        Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => GeneralAppPage()));
       }
     } catch (e) {

@@ -16,7 +16,7 @@ import 'package:petsitter/utils/utils.dart' as utils;
 import 'package:petsitter/services/PetSitterService.dart' as petSitterService;
 import 'package:petsitter/profiles/LoggedPetSitterProfile.dart';
 
-bool isPetSitter = false;
+late bool? isPetSitter = null;
 
 class UserProfile extends StatefulWidget {
   UserProfile();
@@ -41,11 +41,13 @@ class _UserProfileState extends State<UserProfile> {
     name = await UserDataService().getUserName();
     mail = await UserDataService().getUserEmail();
 
-    petSitterService.PetSitterService().getPetSitterByEmail(mail).then((value) {
+    var value = await petSitterService.PetSitterService().getPetSitterByEmail(mail);
       if (value != null) {
         isPetSitter = true;
+      } else {
+        isPetSitter = false;
       }
-    });
+    
 
     return [name, isPetSitter];
   }
