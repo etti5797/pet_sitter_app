@@ -259,17 +259,68 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
               onPressed: () {
                 // Save the new name logic here
                 String newName = _nameEditingController.text;
-                UserDataService().updateUserName(newName);
-                Navigator.of(context).pop();
-                setState(() {
-                  _nameEditingController.text = newName;
-                });
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
+                
+                // Check if the name contains a space
+                if (newName.contains(' ')) {
+                  List<String> nameParts = newName.split(' ');
+                  String firstName = nameParts[0];
+                  String lastName = nameParts[1];
+                  
+                  // Check if both first name and last name are provided
+                  if (firstName.isNotEmpty && lastName.isNotEmpty) {
+                    UserDataService().updateUserName(newName);
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _nameEditingController.text = newName;
+                    });
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
                         builder: (context) => GeneralAppPage(
-                              initialIndex: 3,
-                            ))); // Refresh the profile page
+                          initialIndex: 3,
+                        ),
+                      ),
+                    ); // Refresh the profile page
+                  } else {
+                    // Show an error message if either first name or last name is missing
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Invalid Name'),
+                          content: Text('Please provide both first name and last name.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                } else {
+                  // Show an error message if the name doesn't contain a space
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Invalid Name'),
+                        content: Text('Please provide both first name and last name separated by a space.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
               child: Text('Save'),
             ),

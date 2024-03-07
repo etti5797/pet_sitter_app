@@ -121,43 +121,78 @@ class _UserProfileState extends State<UserProfile> {
   }
   
     void showEditNameDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Edit Name'),
-          content: TextFormField(
-            controller: _nameEditingController,
-            decoration: InputDecoration(labelText: 'New Name'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Edit Name'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _nameEditingController,
+                  decoration: InputDecoration(labelText: 'First Name'),
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Last Name'),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () {
-                // Save the new name logic here
-                String newName = _nameEditingController.text;
-                UserDataService().updateUserName(newName);
-                Navigator.of(context).pop();
-                setState(() {
-                  _nameEditingController.text = newName;
-                });
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Save the new name logic here
+                  String firstName = _nameEditingController.text;
+                  String lastName = ''; // Get the value from the last name text field
+                  String newName = '$firstName $lastName';
+                  
+                  // Add validation for first and last name
+                  if (firstName.isNotEmpty && lastName.isNotEmpty) {
+                    UserDataService().updateUserName(newName);
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _nameEditingController.text = newName;
+                    });
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
                         builder: (context) => GeneralAppPage(
-                              initialIndex: 3,
-                            ))); // Refresh the profile page
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+                          initialIndex: 3,
+                        ),
+                      ),
+                    ); // Refresh the profile page
+                  } else {
+                    // Show an error message if first or last name is empty
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Error'),
+                          content: Text('Please enter both first and last name.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+                child: Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    }
 }
