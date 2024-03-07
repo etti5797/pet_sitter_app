@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:petsitter/generalAppView.dart';
 
 class LoggedPetSitterProfile extends StatefulWidget {
   final String petSitterId;
@@ -24,6 +26,13 @@ class LoggedPetSitterProfile extends StatefulWidget {
 class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
   var reviews = [];
   var _petSitterData;
+  TextEditingController _nameEditingController = TextEditingController();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _nameEditingController.text = _petSitterData['name'];
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -61,12 +70,22 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              _petSitterData['name'],
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  _petSitterData['name'],
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.edit),
+                                  onPressed: () {
+                                    showEditNameDialog(context);
+                                  },
+                                ),
+                              ],
                             ),
                             SizedBox(width: 6),
                           ],
@@ -98,7 +117,8 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                                 padding: EdgeInsets.all(16),
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.center, // Center the location horizontally
+                                    mainAxisAlignment: MainAxisAlignment
+                                        .center, // Center the location horizontally
                                     children: [
                                       Icon(Icons.location_on),
                                       Text(
@@ -186,6 +206,7 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
         .get();
 
     reviews = reviewsSnapshot.docs.map((doc) => doc.data()).toList();
+    _nameEditingController.text = petSitter!['name'];
 
     return petSitter;
   }
@@ -210,6 +231,47 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                 Navigator.of(context).pop();
               },
               child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showEditNameDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Name'),
+          content: TextFormField(
+            controller: _nameEditingController,
+            decoration: InputDecoration(labelText: 'New Name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Save the new name logic here
+                String newName = _nameEditingController.text;
+                UserDataService().updateUserName(newName);
+                Navigator.of(context).pop();
+                setState(() {
+                  _nameEditingController.text = newName;
+                });
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => GeneralAppPage(
+                              initialIndex: 3,
+                            ))); // Refresh the profile page
+              },
+              child: Text('Save'),
             ),
           ],
         );

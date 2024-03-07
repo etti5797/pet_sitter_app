@@ -9,6 +9,8 @@ class UserDataService {
   String userImage = '';
 
 
+
+
     Future<String> getUserName() async {
     try {
       if(userName.isNotEmpty && userName != 'Unknown'){
@@ -31,6 +33,51 @@ class UserDataService {
     } catch (e) {
       print('Error fetching user name: $e');
       return 'Error'; // Handle errors as needed
+    }
+  }
+
+      Future<void> updateUserName(String newName) async {
+      try {
+        User? user = _auth.currentUser;
+
+        if (user != null) {
+          await _firestore
+              .collection('users')
+              .doc(user.email)
+              .update({'name': newName});
+          userName = newName;
+          if(await isPetSitter()){
+            await _firestore
+              .collection('petSitters')
+              .doc(user.email)
+              .update({'name': newName});
+          }
+        }
+      } catch (e) {
+        print('Error updating user name: $e');
+        //TODO: if was any error need to show a message to the user
+      }
+    }
+
+  Future<bool> isPetSitter() async {
+    try {
+      bool isPetSitter = false; 
+      String email = await getUserEmail();
+
+      User? user = _auth.currentUser;
+
+      if (user != null) {
+        DocumentSnapshot userDoc = await _firestore.collection('petSitters').doc(user.email).get();
+
+        if (userDoc.exists) {
+          isPetSitter = true;
+        }
+      }
+
+      return isPetSitter; // Default value if user or user data not found
+    } catch (e) {
+      print('Error fetching user city: $e');
+      return false; // Handle errors as needed
     }
   }
 
