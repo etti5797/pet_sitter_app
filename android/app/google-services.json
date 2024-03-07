@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "435668794455",
+    "project_id": "petsitter-aae22",
+    "storage_bucket": "petsitter-aae22.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435668794455:android:c267bb425cd55159a07712",
+        "android_client_info": {
+          "package_name": "com.technion.petsitter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "435668794455-nbo72uk1bg4c2oeafpm7hdh3p95es425.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.technion.petsitter",
+            "certificate_hash": "adb9bacc2a24b01463e006c3ed46e1719b3ad808"
+          }
+        },
+        {
+          "client_id": "435668794455-rfomddceuso41fp00flqn7ts9hjvp4pk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.technion.petsitter",
+            "certificate_hash": "ef91b01f5e7151c3019178b01c1f95dda2ec5837"
+          }
+        },
+        {
+          "client_id": "435668794455-bmuu9r2rb9dqm8oskfbeq8ab9mgmhsac.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPRvQWeBRHrQC0ZFxP2n2jROs0U1UaNiU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "435668794455-bmuu9r2rb9dqm8oskfbeq8ab9mgmhsac.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
