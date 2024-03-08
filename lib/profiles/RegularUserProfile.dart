@@ -131,11 +131,11 @@ class _UserProfileState extends State<UserProfile> {
               children: [
                 TextFormField(
                   controller: _nameEditingController,
-                  decoration: InputDecoration(labelText: 'First Name'),
+                  decoration: InputDecoration(labelText: 'New Name'),
                 ),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Last Name'),
-                ),
+                // TextFormField(
+                //   decoration: InputDecoration(labelText: 'Last Name'),
+                // ),
               ],
             ),
             actions: [
@@ -149,32 +149,33 @@ class _UserProfileState extends State<UserProfile> {
                 onPressed: () {
                   // Save the new name logic here
                   String firstName = _nameEditingController.text;
-                  String lastName = ''; // Get the value from the last name text field
-                  String newName = '$firstName $lastName';
+                 // String lastName = ''; // Get the value from the last name text field
+                  String newName = '$firstName';
                   
                   // Add validation for first and last name
-                  if (firstName.isNotEmpty && lastName.isNotEmpty) {
+                  if (firstName.isNotEmpty) {
                     UserDataService().updateUserName(newName);
                     Navigator.of(context).pop();
                     setState(() {
                       _nameEditingController.text = newName;
-                    });
-                    Navigator.pushReplacement(
+                      Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => GeneralAppPage(
-                          initialIndex: 3,
+                          initialIndex: 3, // Refresh the profile page
                         ),
                       ),
-                    ); // Refresh the profile page
+                    ); //
+                    });
+                    
                   } else {
-                    // Show an error message if first or last name is empty
+                    // Show an error message if first name is empty
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
                           title: Text('Error'),
-                          content: Text('Please enter both first and last name.'),
+                          content: Text('Please enter a full name.'),
                           actions: [
                             TextButton(
                               onPressed: () {

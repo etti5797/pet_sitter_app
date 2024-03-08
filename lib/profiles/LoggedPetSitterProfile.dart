@@ -272,15 +272,16 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                     Navigator.of(context).pop();
                     setState(() {
                       _nameEditingController.text = newName;
-                    });
-                    Navigator.pushReplacement(
+                      Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => GeneralAppPage(
                           initialIndex: 3,
                         ),
                       ),
-                    ); // Refresh the profile page
+                    );
+                    });
+                     // Refresh the profile page
                   } else {
                     // Show an error message if either first name or last name is missing
                     showDialog(
