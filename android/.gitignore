@@ -12,3 +12,4 @@ key.properties
 app/upload-keystore.jks
 **/*.keystore
 **/*.jks
+app/google-services.json
