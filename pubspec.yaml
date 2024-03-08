@@ -90,7 +90,7 @@ flutter:
     - images/cats/
     - images/dogs/
     - images/dogsCats/
-    - images/favorites.PNG
+    - images/favorites.jpg
     - images/userProfileImage.jpg
     
   # An image asset can refer to one or more resolution-specific "variants", see
