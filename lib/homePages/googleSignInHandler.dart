@@ -34,6 +34,11 @@ class GoogleSignInHandler {
         idToken: googleAuth.idToken,
       );
 
+          UserCredential authResult =
+        await _auth.signInWithCredential(credential);
+
+    User? user = authResult.user;
+
       final DocumentSnapshot doc =
           await _firestore.collection('users').doc(googleUser.email).get();
       if (!doc.exists) {
