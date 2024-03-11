@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petsitter/pet_sitters_images_handler/pickImageForPetSitter.dart';
@@ -26,6 +27,7 @@ class _SignUpPageState extends State<SignUpPage> {
   String _phoneNumber = '';
   String? _city = '';
   String? _district = '';
+  String? _state = '';
   String _gender = '';
   List<String> _pets = [];
   bool _isLoading = false;
@@ -232,12 +234,12 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 ///placeholders for dropdown search field
                 countrySearchPlaceholder: "Country",
-                stateSearchPlaceholder: "State",
+                stateSearchPlaceholder: "District",
                 citySearchPlaceholder: "City",
 
                 ///labels for dropdown
                 countryDropdownLabel: "*Country",
-                stateDropdownLabel: "*State",
+                stateDropdownLabel: "*District",
                 cityDropdownLabel: "*City",
 
                 // ///Default Country
@@ -275,6 +277,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   setState(() {
                     ///store value in country variable
                     countryValue = value;
+                    _state = value;
                   });
                 },
 
@@ -295,6 +298,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     _city = value;
                   });
                 },
+                
               ),
               SizedBox(height: 16.0),
               Row(
@@ -315,41 +319,45 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    if (_city == null || _city!.isEmpty) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Missing City'),
-                            content: Text('Please fill in the city field.'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  if ((_state == null || _state!.isEmpty) && (_city == null || _city!.isEmpty) && (_district == null || _district!.isEmpty)) {
+                    showMissingFieldDialog(context, 'Missing Location Information', 'Please fill country, district, and city fields.');
+                  } else if ((_city == null || _city!.isEmpty) && (_district == null || _district!.isEmpty)) {
+                    showMissingFieldDialog(context, 'Missing Location Information', 'Please fill in the district and the city field.');
+                  } else if (_city == null || _city!.isEmpty){
+                    showMissingFieldDialog(context, 'Missing Location Information', 'Please fill in the city field.');
+                  }
                     if (isSpecialUser) {
                       // Check if the additional questions are answered
                       bool _additionalQuestionsAnswered() {
                         // Add your implementation here
                         return true; // Replace with your logic
+                        // no need to check as we can't press the sign up buttom without collapsing the pop up
                       }
 
                       if (_additionalQuestionsAnswered()) {
-                        _signUpWithGoogle();
+                        if(_state == null || _state!.isEmpty || _city == null || _city!.isEmpty || _district == null || _district!.isEmpty)
+                      {
+                        //allready have error msg
+                      }
+                      else
+                      {_signUpWithGoogle();}
+                         
                       } else {
                         // Show an error message or prompt the user to answer the questions
                       }
                     } else {
-                      _signUpWithGoogle();
+                      if(_state == null || _state!.isEmpty || _city == null || _city!.isEmpty || _district == null || _district!.isEmpty)
+                      {
+                        //allready have error msg
+                        
+                      }
+                      else
+                      {
+                        _signUpWithGoogle();
+                      } 
+                      
                     }
                   }
                 },
@@ -429,6 +437,12 @@ class _SignUpPageState extends State<SignUpPage> {
                       _pets = values;
                     },
                     title: Text('Select Pets'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select at least one pet type';
+                      }
+                      return null;
+                    },
                   ),
                 ],
               ),
@@ -462,6 +476,25 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  void showMissingFieldDialog(BuildContext context, String title, String content) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
   // TODO: need to verify all combinations of choosing check box and cancelling it// Cancel
   // global variables need to be cleaned after cancelling the check box and filled after submission
 
