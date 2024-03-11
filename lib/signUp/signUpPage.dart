@@ -321,11 +321,11 @@ class _SignUpPageState extends State<SignUpPage> {
                 onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
-                  if ((_state == null || _state!.isEmpty) && (_city == null || _city!.isEmpty) && (_district == null || _district!.isEmpty)) {
+                  if ((_state == null || _state!.isEmpty || _state == "*Country") && (_city == null || _city!.isEmpty || _city == "*City") && (_district == null || _district!.isEmpty || _district == "*District")) {
                     showMissingFieldDialog(context, 'Missing Location Information', 'Please fill country, district, and city fields.');
-                  } else if ((_city == null || _city!.isEmpty) && (_district == null || _district!.isEmpty)) {
+                  } else if ((_city == null || _city!.isEmpty || _city == "*City") && (_district == null || _district!.isEmpty || _district == "*District")) {
                     showMissingFieldDialog(context, 'Missing Location Information', 'Please fill in the district and the city field.');
-                  } else if (_city == null || _city!.isEmpty){
+                  } else if (_city == null || _city!.isEmpty || _city == "*City"){
                     showMissingFieldDialog(context, 'Missing Location Information', 'Please fill in the city field.');
                   }
                     if (isSpecialUser) {
@@ -343,12 +343,12 @@ class _SignUpPageState extends State<SignUpPage> {
                       }
                       else
                       {_signUpWithGoogle();}
-                         
+
                       } else {
                         // Show an error message or prompt the user to answer the questions
                       }
                     } else {
-                      if(_state == null || _state!.isEmpty || _city == null || _city!.isEmpty || _district == null || _district!.isEmpty)
+                      if(_state == null || _state!.isEmpty || _city == null || _city!.isEmpty || _district == null || _district!.isEmpty || _state == "*Country" || _city == "*City" || _district == "*District")
                       {
                         //allready have error msg
                         
