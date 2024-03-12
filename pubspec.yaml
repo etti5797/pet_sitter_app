@@ -50,7 +50,7 @@ dependencies:
   country_state_city: ^0.1.6
   autocomplete_textfield: ^2.0.1
   country_state_city_picker: ^1.2.8
-
+  connectivity: ^3.0.6
 
 dev_dependencies:
   flutter_test:
