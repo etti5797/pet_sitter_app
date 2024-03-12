@@ -6,6 +6,7 @@ import 'package:petsitter/discover_sitters/exploreScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petsitter/profiles/RegularUserProfile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:petsitter/services/CurrentUserDataService.dart';
 
 class GeneralAppPage extends StatefulWidget {
   final int initialIndex;
@@ -47,10 +48,11 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
-            onPressed: () {
+            onPressed: () async {
+              await _googleSignIn.signOut();
+              await UserDataService().signOut();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => HomePageWithLogin()));
-                  _googleSignIn.signOut();
             },
           ),
         ],

@@ -15,15 +15,19 @@ class RecentlyViewedScreen extends StatelessWidget {
               Image.asset(
                 'images/recentlyViewedImage.jpeg'), // Replace 'your_image.png' with the actual image path
               Positioned.fill(
-                child: Center(
-                  child: Text(
-                    'Recently\nViewed',
-                    style: GoogleFonts.lora(
-                      fontSize: 30,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 90), // Adjust the left padding as desired
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Recently\nViewed',
+                      style: GoogleFonts.lora(
+                        fontSize: 30,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.left, // Align the text to the left
                     ),
-                    textAlign: TextAlign.center, // Align the text to the center
                   ),
                 ),
               ),

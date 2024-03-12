@@ -26,7 +26,8 @@ class LoggedPetSitterProfile extends StatefulWidget {
 class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
   var reviews = [];
   var _petSitterData;
-  TextEditingController _nameEditingController = TextEditingController();
+  TextEditingController _firstNameEditingController = TextEditingController();
+  TextEditingController _lastNameEditingController = TextEditingController();
 
   // @override
   // void initState() {
@@ -206,7 +207,10 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
         .get();
 
     reviews = reviewsSnapshot.docs.map((doc) => doc.data()).toList();
-    _nameEditingController.text = petSitter!['name'];
+    String name = petSitter!['name'];
+    List<String> nameParts = name.split(' ');
+    _firstNameEditingController.text = nameParts[0];
+    _lastNameEditingController.text = nameParts.length > 1 ? nameParts[1] : '';
 
     return petSitter;
   }
@@ -238,95 +242,79 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
     );
   }
 
-  void showEditNameDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Edit Name'),
-          content: TextFormField(
-            controller: _nameEditingController,
-            decoration: InputDecoration(labelText: 'New Name'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
+    void showEditNameDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Edit Name'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _firstNameEditingController,
+                  decoration: InputDecoration(labelText: 'First Name'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your first name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _lastNameEditingController,
+                  decoration: InputDecoration(labelText: 'Last Name'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your last name';
+                    }
+                    return null;
+                  },
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () {
-                // Save the new name logic here
-                String newName = _nameEditingController.text;
-                
-                // Check if the name contains a space
-                if (newName.contains(' ')) {
-                  List<String> nameParts = newName.split(' ');
-                  String firstName = nameParts[0];
-                  String lastName = nameParts[1];
-                  
-                  // Check if both first name and last name are provided
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  String firstName = _firstNameEditingController.text;
+                  String lastName = _lastNameEditingController.text;
+
                   if (firstName.isNotEmpty && lastName.isNotEmpty) {
+                    String newName = '$firstName $lastName';
                     UserDataService().updateUserName(newName);
                     Navigator.of(context).pop();
                     setState(() {
-                      _nameEditingController.text = newName;
-                    });
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GeneralAppPage(
-                          initialIndex: 3,
+                      _firstNameEditingController.text = firstName;
+                      _lastNameEditingController.text = lastName;
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GeneralAppPage(
+                            initialIndex: 3, // Refresh the profile page
+                          ),
                         ),
-                      ),
-                    ); // Refresh the profile page
+                      );
+                    });
                   } else {
-                    // Show an error message if either first name or last name is missing
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Invalid Name'),
-                          content: Text('Please provide both first name and last name.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
+                    // Show an error message if first name or last name is empty
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please enter a full name.'),
+                      ),
                     );
                   }
-                } else {
-                  // Show an error message if the name doesn't contain a space
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Invalid Name'),
-                        content: Text('Please provide both first name and last name separated by a space.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+                },
+                child: Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+}
 }

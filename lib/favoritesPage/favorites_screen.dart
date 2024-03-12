@@ -23,14 +23,17 @@ class FavoritesScreenState extends State<FavoritesScreen> {
           Stack(
             children: [
               Image.asset(
-                  'images/favorites.PNG',
-                ),
-              Positioned.fill(
+                'images/favorites.jpg',
+              ),
+              Positioned(
+                // top: 0, // Adjust the value to set the distance from the top
+                // left: 10,
+                // right: 0,
+                // bottom: 0,
                 child: Center(
                   child: Align(
-                    alignment: Alignment.centerLeft,
                     child: Text(
-                      '\n\n\n\n                   Favorites',
+                      '\nFavorites',
                       style: GoogleFonts.lora(
                         fontSize: 30,
                         color: Colors.black,
@@ -50,12 +53,12 @@ class FavoritesScreenState extends State<FavoritesScreen> {
                 currentUserDataService.UserDataService().getFavoriteDocuments(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                 return Container(
-                    alignment: Alignment.center,
-                    height: 50, // Specify the desired height
-                    width: 50, // Specify the desired width
-                    child: CircularProgressIndicator(),
-                  );
+                return Container(
+                  alignment: Alignment.center,
+                  height: 50, // Specify the desired height
+                  width: 50, // Specify the desired width
+                  child: CircularProgressIndicator(),
+                );
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -68,15 +71,15 @@ class FavoritesScreenState extends State<FavoritesScreen> {
                     return FavoriteCard(
                       petSitterSnapshot: favoritePetSitters[index],
                       onRemove: () {
-                          // Create a copy of the list and modify the copy
-                          List<DocumentSnapshot<Map<String, dynamic>>> updatedList =
-                              List.from(favoritePetSitters);
-                          updatedList.removeAt(index);
+                        // Create a copy of the list and modify the copy
+                        List<DocumentSnapshot<Map<String, dynamic>>>
+                            updatedList = List.from(favoritePetSitters);
+                        updatedList.removeAt(index);
 
-                          // Update the state with the modified copy
-                          setState(() {
-                            favoritePetSitters = updatedList;
-                          });
+                        // Update the state with the modified copy
+                        setState(() {
+                          favoritePetSitters = updatedList;
+                        });
                       },
                     );
                   },
@@ -88,7 +91,6 @@ class FavoritesScreenState extends State<FavoritesScreen> {
       ),
     );
   }
-
 }
 
 

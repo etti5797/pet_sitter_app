@@ -31,7 +31,8 @@ class _UserProfileState extends State<UserProfile> {
   String name = '';
   String mail = '';
   String image = '';
-  TextEditingController _nameEditingController = TextEditingController();
+  TextEditingController _firstNameEditingController = TextEditingController();
+  TextEditingController _lastNameEditingController = TextEditingController();
 
   Future<List<dynamic>> fetchUserData() async {
     name = await UserDataService().getUserName();
@@ -44,7 +45,10 @@ class _UserProfileState extends State<UserProfile> {
         isPetSitter = false;
       }
     
-    _nameEditingController.text = name;
+    List<String> nameParts = name.split(' ');
+    _firstNameEditingController.text = nameParts[0];
+    _lastNameEditingController.text = nameParts.length > 1 ? nameParts[1] : '';
+
 
     return [name, isPetSitter];
   }
@@ -130,11 +134,24 @@ class _UserProfileState extends State<UserProfile> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
-                  controller: _nameEditingController,
+                  controller: _firstNameEditingController,
                   decoration: InputDecoration(labelText: 'First Name'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your first name';
+                    }
+                    return null;
+                  },
                 ),
                 TextFormField(
+                  controller: _lastNameEditingController,
                   decoration: InputDecoration(labelText: 'Last Name'),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your last name';
+                    }
+                    return null;
+                  },
                 ),
               ],
             ),
@@ -147,44 +164,31 @@ class _UserProfileState extends State<UserProfile> {
               ),
               TextButton(
                 onPressed: () {
-                  // Save the new name logic here
-                  String firstName = _nameEditingController.text;
-                  String lastName = ''; // Get the value from the last name text field
-                  String newName = '$firstName $lastName';
-                  
-                  // Add validation for first and last name
+                  String firstName = _firstNameEditingController.text;
+                  String lastName = _lastNameEditingController.text;
+
                   if (firstName.isNotEmpty && lastName.isNotEmpty) {
+                    String newName = '$firstName $lastName';
                     UserDataService().updateUserName(newName);
                     Navigator.of(context).pop();
                     setState(() {
-                      _nameEditingController.text = newName;
-                    });
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GeneralAppPage(
-                          initialIndex: 3,
+                      _firstNameEditingController.text = firstName;
+                      _lastNameEditingController.text = lastName;
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GeneralAppPage(
+                            initialIndex: 3, // Refresh the profile page
+                          ),
                         ),
-                      ),
-                    ); // Refresh the profile page
+                      );
+                    });
                   } else {
-                    // Show an error message if first or last name is empty
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Error'),
-                          content: Text('Please enter both first and last name.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
+                    // Show an error message if first name or last name is empty
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please enter a full name.'),
+                      ),
                     );
                   }
                 },
@@ -194,5 +198,5 @@ class _UserProfileState extends State<UserProfile> {
           );
         },
       );
-    }
+}
 }

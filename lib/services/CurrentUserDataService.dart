@@ -8,8 +8,13 @@ class UserDataService {
   String userName = ''; //in order not to get the name from the database every time
   String userImage = '';
 
-
-
+    //every cached field should be cleared when the user logs out
+    Future<void> signOut() async {
+      _auth.signOut();
+      userEmail = '';
+      userName = '';
+      userImage = '';
+    }
 
     Future<String> getUserName() async {
     try {
