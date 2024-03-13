@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:petsitter/profiles/RegularUserProfile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
+import 'utils/connectivityUtil.dart';
 
 class GeneralAppPage extends StatefulWidget {
   final int initialIndex;
@@ -57,7 +58,26 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
           ),
         ],
       ),
-      body: _screens[_currentIndex],
+      body: FutureBuilder<bool>(
+        future: ConnectivityUtil.checkConnectivity(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Return a loading indicator while checking connectivity
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Handle error if necessary
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.data == true) {
+            // Return the app content when there is internet
+            return _screens[_currentIndex];
+          } else {
+            // Return a widget indicating no internet
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color.fromARGB(255, 201, 160, 106),
         type: BottomNavigationBarType.fixed,

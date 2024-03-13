@@ -16,6 +16,7 @@ import 'package:petsitter/utils/utils.dart' as utils;
 import 'package:petsitter/services/PetSitterService.dart' as petSitterService;
 import 'package:petsitter/profiles/LoggedPetSitterProfile.dart';
 import 'package:petsitter/generalAppView.dart';
+import '../utils/connectivityUtil.dart';
 
 late bool? isPetSitter = null;
 
@@ -163,7 +164,8 @@ class _UserProfileState extends State<UserProfile> {
                 child: Text('Cancel'),
               ),
               TextButton(
-                onPressed: () {
+                onPressed: () async {
+                  bool isConnected = await ConnectivityUtil.checkConnectivity(context);
                   String firstName = _firstNameEditingController.text;
                   String lastName = _lastNameEditingController.text;
 

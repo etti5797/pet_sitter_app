@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:petsitter/utils/connectivityUtil.dart';
 import 'petSitterCard.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
@@ -8,6 +9,7 @@ import 'package:country_state_city/country_state_city.dart'
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/connectivityUtil.dart';
 
 class ExploreScreen extends StatefulWidget {
   @override
@@ -17,6 +19,7 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   String selectedCity = ''; // Variable to hold the selected city
   String selectedDistrict = ''; // Variable to hold the selected district
+  bool isConnected = false;
 
 
   @override
@@ -72,7 +75,7 @@ void initState() {
               // ),
               _buildCityAutocomplete(),
               SizedBox(height: 16),
-              _buildPetSitterCards(), // Method to build the pet sitter cards
+              isConnected ? _buildPetSitterCards() : CircularProgressIndicator(), // Method to build the pet sitter cards
             ],
           ),
         ),
@@ -80,7 +83,10 @@ void initState() {
     );
   }
 
+  
+
   Future<List<country_state_city.City>> _fetchCities(String pattern) async {
+    isConnected = await ConnectivityUtil.checkConnectivity(context);
     return country_state_city.getCountryCities('IL').then(
       (cities) {
         return cities

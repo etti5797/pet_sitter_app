@@ -5,6 +5,7 @@ import 'package:petsitter/pet_sitters_images_handler/pickImageForPetSitter.dart'
 import 'package:petsitter/profiles/petSitterProfile.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'package:petsitter/services/PetSitterService.dart';
+import '../utils/connectivityUtil.dart';
 
 class RecentPetSitterCard extends StatelessWidget {
   final DocumentSnapshot<Map<String, dynamic>> petSitterSnapshot;
@@ -99,10 +100,13 @@ Widget build(BuildContext context) {
                     ElevatedButton(
                       onPressed: () async {
                         // Handle submit feedback here
+                        bool isConnected = await ConnectivityUtil.checkConnectivity(context);
+                        if(isConnected){
                         String currentUserEmail = await UserDataService().getUserEmail();
                         String feedback = feedbackController.text; // Get the text from the controller
                         PetSitterService().addReview(email, feedback);
                         Navigator.of(context).pop();
+                        }
                       },
                       child: Text('Submit'),
                     ),

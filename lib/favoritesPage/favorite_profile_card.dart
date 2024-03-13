@@ -5,6 +5,7 @@ import 'package:petsitter/services/CurrentUserDataService.dart'
 import 'package:petsitter/profiles/petSitterProfile.dart';
 import 'package:petsitter/favoritesPage/favorites_screen.dart';
 import 'package:petsitter/generalAppView.dart';
+import '../utils/connectivityUtil.dart';
 
 class FavoriteCard extends StatefulWidget {
   final DocumentSnapshot<Map<String, dynamic>> petSitterSnapshot;
@@ -41,6 +42,8 @@ class _FavoriteCardState extends State<FavoriteCard> {
             color: isFavorite ? Colors.red : null,
           ),
           onPressed: () async {
+            bool isConnected = await ConnectivityUtil.checkConnectivity(context);
+            if(isConnected){
             // Handle favorite toggle logic here
             if (!isFavorite) {
               await currentUserDataService.UserDataService()
@@ -59,9 +62,12 @@ class _FavoriteCardState extends State<FavoriteCard> {
             // if (widget.onRemove != null) {
             //   widget.onRemove!();
             // }
+            }
           },
         ),
-        onTap: () {
+        onTap: () async {
+          bool isConnected = await ConnectivityUtil.checkConnectivity(context);
+          if(isConnected) {
           // Navigate to pet sitter profile screen
           Navigator.push(
             context,
@@ -77,6 +83,7 @@ class _FavoriteCardState extends State<FavoriteCard> {
               ),
             ),
           );
+          }
         },
       ),
     );

@@ -13,6 +13,7 @@ import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:petsitter/generalAppView.dart';
+import '../utils/connectivityUtil.dart';
 
 class LoggedPetSitterProfile extends StatefulWidget {
   final String petSitterId;
@@ -281,7 +282,9 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                 child: Text('Cancel'),
               ),
               TextButton(
-                onPressed: () {
+                onPressed: () async {
+                  bool isConnected = await ConnectivityUtil.checkConnectivity(context);
+                  if(isConnected){
                   String firstName = _firstNameEditingController.text;
                   String lastName = _lastNameEditingController.text;
 
@@ -309,6 +312,7 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                       ),
                     );
                   }
+                }
                 },
                 child: Text('Save'),
               ),
