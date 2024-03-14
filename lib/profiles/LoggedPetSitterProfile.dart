@@ -14,6 +14,7 @@ import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:petsitter/generalAppView.dart';
 import '../utils/connectivityUtil.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class LoggedPetSitterProfile extends StatefulWidget {
   final String petSitterId;
@@ -93,6 +94,62 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                           ],
                         ),
                       ),
+                                            if (_petSitterData['sumRate'] != null &&
+                          _petSitterData['sumReview'] != null &&
+                          _petSitterData['sumRate'] > 0 &&
+                          _petSitterData['sumReview'] > 0) ...[
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RatingBar.builder(
+                                initialRating: (_petSitterData['sumRate'] / _petSitterData['sumReview']).toDouble(),
+                                minRating: 1,
+                                direction: Axis.horizontal,
+                                allowHalfRating: true,
+                                itemCount: 5,
+                                itemSize: 30,
+                                ignoreGestures: true, // Disable user interaction
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (value) => null,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '${_petSitterData['sumReview']} reviews',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]else ...[
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RatingBar.builder(
+                                initialRating: 0,
+                                direction: Axis.horizontal,
+                                itemCount: 5,
+                                itemSize: 30,
+                                ignoreGestures: true, // Disable user interaction
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (value) => null,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '0 reviews',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -110,7 +167,7 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                       ),
                       // Tab Bar View
                       Container(
-                        height: 200, // Set a fixed height
+                        height: 180, // Set a fixed height
                         child: TabBarView(
                           children: [
                             // Information Tab
@@ -139,17 +196,19 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                               ),
                             ),
                             // Feedbacks Tab
-                            Container(
-                              padding: EdgeInsets.all(16),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: List.generate(
-                                    reviews.length,
-                                    (index) {
-                                      final review = reviews[index];
-                                      return ReviewCard(review: review);
-                                    },
+                            SingleChildScrollView(
+                              child: Container(
+                                padding: EdgeInsets.all(16),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: List.generate(
+                                      reviews.length,
+                                      (index) {
+                                        final review = reviews[index];
+                                        return ReviewCard(review: review);
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
@@ -243,48 +302,49 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
     );
   }
 
-    void showEditNameDialog(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Edit Name'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _firstNameEditingController,
-                  decoration: InputDecoration(labelText: 'First Name'),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your first name';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _lastNameEditingController,
-                  decoration: InputDecoration(labelText: 'Last Name'),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your last name';
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
+  void showEditNameDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Name'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _firstNameEditingController,
+                decoration: InputDecoration(labelText: 'First Name'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your first name';
+                  }
+                  return null;
                 },
-                child: Text('Cancel'),
               ),
-              TextButton(
-                onPressed: () async {
-                  bool isConnected = await ConnectivityUtil.checkConnectivity(context);
-                  if(isConnected){
+              TextFormField(
+                controller: _lastNameEditingController,
+                decoration: InputDecoration(labelText: 'Last Name'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your last name';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                bool isConnected =
+                    await ConnectivityUtil.checkConnectivity(context);
+                if (isConnected) {
                   String firstName = _firstNameEditingController.text;
                   String lastName = _lastNameEditingController.text;
 
@@ -313,12 +373,12 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                     );
                   }
                 }
-                },
-                child: Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-}
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
