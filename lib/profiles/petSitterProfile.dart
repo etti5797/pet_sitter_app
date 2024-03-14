@@ -262,6 +262,7 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
         .collection('petSitters')
         .doc(widget.petSitterId)
         .collection('reviews')
+        .orderBy('timestamp', descending: true) // Order by timestamp in descending order
         .get();
 
     reviews = reviewsSnapshot.docs.map((doc) => doc.data()).toList();
