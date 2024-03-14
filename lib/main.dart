@@ -1,9 +1,6 @@
-// import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-// import 'dart:developer' as developer;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'signUp/signUpPage.dart';
 import 'utils/utils.dart';
