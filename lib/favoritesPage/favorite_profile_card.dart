@@ -28,7 +28,9 @@ class _FavoriteCardState extends State<FavoriteCard> {
       child: ListTile(
         contentPadding: EdgeInsets.all(8),
         leading: CircleAvatar(
-          backgroundImage: AssetImage(widget.petSitterSnapshot['image']),
+          backgroundImage: widget.petSitterSnapshot.data()!.containsKey('photoUrl') && widget.petSitterSnapshot['photoUrl'] != ''
+                                      ? NetworkImage(widget.petSitterSnapshot['photoUrl'])
+                                      : AssetImage(widget.petSitterSnapshot['image']) as ImageProvider<Object>?,
           radius: 30,
         ),
         title: Text(

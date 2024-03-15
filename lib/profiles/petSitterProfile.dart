@@ -105,7 +105,11 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                     children: [
                       CircleAvatar(
                         radius: 100,
-                        backgroundImage: AssetImage(_petSitterData!['image']),
+                        backgroundImage: _petSitterData['photoUrl'] != null
+                            ? NetworkImage(_petSitterData['photoUrl'])
+                            : AssetImage(_petSitterData['image'])
+                                as ImageProvider<Object>?,
+                        // AssetImage(_petSitterData!['image']),
                       ),
                       Center(
                         child: Row(
@@ -162,13 +166,16 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               RatingBar.builder(
-                                initialRating: (_petSitterData['sumRate'] / _petSitterData['sumReview']).toDouble(),
+                                initialRating: (_petSitterData['sumRate'] /
+                                        _petSitterData['sumReview'])
+                                    .toDouble(),
                                 minRating: 1,
                                 direction: Axis.horizontal,
                                 allowHalfRating: true,
                                 itemCount: 5,
                                 itemSize: 30,
-                                ignoreGestures: true, // Disable user interaction
+                                ignoreGestures:
+                                    true, // Disable user interaction
                                 itemBuilder: (context, _) => Icon(
                                   Icons.star,
                                   color: Colors.amber,
@@ -193,7 +200,8 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                                 direction: Axis.horizontal,
                                 itemCount: 5,
                                 itemSize: 30,
-                                ignoreGestures: true, // Disable user interaction
+                                ignoreGestures:
+                                    true, // Disable user interaction
                                 itemBuilder: (context, _) => Icon(
                                   Icons.star,
                                   color: Colors.amber,
