@@ -123,7 +123,7 @@ class BubbleListItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'From: $userName',
+              '$userName',
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
