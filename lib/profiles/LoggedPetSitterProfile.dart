@@ -253,14 +253,14 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                   ),
                 ),
                 // Show contact info button at the bottom
-                FloatingActionButton(
-                  onPressed: () {
-                    showContactInfo(context, _petSitterData['email'],
-                        _petSitterData['phoneNumber']);
-                    addToRecentlyViewed();
-                  },
-                  child: Text('Show contact info'),
-                ),
+                // FloatingActionButton(
+                //   onPressed: () {
+                //     showContactInfo(context, _petSitterData['email'],
+                //         _petSitterData['phoneNumber']);
+                //     addToRecentlyViewed();
+                //   },
+                //   child: Text('Show contact info'),
+                // ),
               ],
             ),
           ),
@@ -423,7 +423,7 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => GeneralAppPage(
-                            initialIndex: 3, // Refresh the profile page
+                            initialIndex: 4, // Refresh the profile page
                           ),
                         ),
                       );

@@ -52,6 +52,15 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
             if (widget.petSitterId != user.email) {
               userFavorites.insert(0, petSitterReference);
             }
+            else
+            {
+              ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('You cannot add yourself to favorites!'),
+                duration: Duration(seconds: 5),
+              ),
+            );
+            }
             if (userFavorites.length > 25) {
               userFavorites.removeLast();
             }
@@ -287,7 +296,7 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                 FloatingActionButton(
                   onPressed: () async {
                     final currentUser = FirebaseAuth.instance.currentUser;
-                    if (currentUser != null) {
+                    if (currentUser != null && currentUser.email != widget.petSitterId) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -298,6 +307,14 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                         ),
                       );
                       addToRecentlyViewed();
+                    }
+                    else{
+                      ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('You cannot chat with yourself!'),
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
                     }
                   },
                   child: Text('Start chat'),

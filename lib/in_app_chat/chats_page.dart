@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
+import '../utils/connectivityUtil.dart';
 
 
 class ChatWidget extends StatefulWidget {
@@ -45,6 +46,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 201, 160, 106),
         title: Text(
@@ -56,6 +58,7 @@ class _ChatWidgetState extends State<ChatWidget> {
         ),
         centerTitle: true,
       ),
+      
       body: Column(
         children: [
           Expanded(
@@ -63,7 +66,10 @@ class _ChatWidgetState extends State<ChatWidget> {
               future: userNameFuture,
               builder: (BuildContext context, AsyncSnapshot<String> userNameSnapshot) {
                 if (userNameSnapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return Container(
+                    alignment: Alignment.center,
+                    height: 50, // Specify the desired height
+                    width: 50, // Specify the desired width
                     child: CircularProgressIndicator(),
                   );
                 }
@@ -74,9 +80,12 @@ class _ChatWidgetState extends State<ChatWidget> {
                   future: otherUserNameFuture,
                   builder: (BuildContext context, AsyncSnapshot<String> otherUserNameSnapshot) {
                     if (otherUserNameSnapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return Container(
+                      alignment: Alignment.center,
+                      height: 50, // Specify the desired height
+                      width: 50, // Specify the desired width
+                      child: CircularProgressIndicator(),
+                    );
                     }
                     if (otherUserNameSnapshot.hasError) {
                       return Text('Error: ${otherUserNameSnapshot.error}');
@@ -86,7 +95,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                       stream: _messagesCollection.doc(widget.userId).collection("chat").doc(widget.otherUserId)
                       .collection('private_messages')
                       .orderBy('timestamp', descending: true)
-                      .limit(20)
+                      .limit(100)
                       .snapshots(),
                       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                         if (snapshot.hasError) {
@@ -94,9 +103,12 @@ class _ChatWidgetState extends State<ChatWidget> {
                         }
 
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
+                          return Container(
+                          alignment: Alignment.center,
+                          height: 50, // Specify the desired height
+                          width: 50, // Specify the desired width
+                          child: CircularProgressIndicator(),
+                        );
                         }
 
                         return ListView(
@@ -150,6 +162,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                   onPressed: () {
                     // Send message
                     _sendMessage();
+
                   },
                 ),
               ],
@@ -260,4 +273,24 @@ class Bubble extends StatelessWidget {
       ],
     );
   }
+
 }
+void showSignUpDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Sign In Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }

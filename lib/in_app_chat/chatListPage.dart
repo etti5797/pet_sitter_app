@@ -11,6 +11,7 @@ class ChatsListPage extends StatelessWidget {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     String? userEmail = _auth.currentUser?.email;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Column(
         children: [
           Stack(
@@ -46,7 +47,12 @@ class ChatsListPage extends StatelessWidget {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return CircularProgressIndicator();
+                  return Container(
+                    alignment: Alignment.center,
+                    height: 50, // Specify the desired height
+                    width: 50, // Specify the desired width
+                    child: CircularProgressIndicator(),
+                  );
                 }
                 final chats = snapshot.data!.docs;
                 chats.sort((a, b) {

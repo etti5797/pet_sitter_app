@@ -26,8 +26,8 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
     ExploreScreen(),
     RecentlyViewedScreen(),
     FavoritesScreen(),
-    UserProfile(),
     ChatsListPage(),
+    UserProfile(),
   ];
 
   @override
@@ -103,12 +103,12 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
             label: 'Favorites',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline_outlined),   
             label: 'Chats',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Profile',
           ),
         ],
       ),

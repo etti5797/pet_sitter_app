@@ -208,7 +208,7 @@ class _UserProfileState extends State<UserProfile> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => GeneralAppPage(
-                          initialIndex: 3, // Refresh the profile page
+                          initialIndex: 4, // Refresh the profile page
                         ),
                       ),
                     );
