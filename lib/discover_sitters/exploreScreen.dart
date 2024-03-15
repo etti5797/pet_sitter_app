@@ -272,6 +272,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   city: petSitter['city'],
                   email: petSitter['email'],
                   imagePath: petSitter['image'],
+                  photoUrl: petSitter['photoUrl'],
                 );
               },
             );

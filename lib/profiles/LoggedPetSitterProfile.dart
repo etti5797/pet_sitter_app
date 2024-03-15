@@ -1,20 +1,14 @@
-import 'dart:developer';
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
-import '../pet_sitters_images_handler/pickImageForPetSitter.dart';
 import 'package:petsitter/services/PetSitterService.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
-import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
-import 'package:petsitter/feedbacks_handler/reviewCard.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:petsitter/generalAppView.dart';
 import '../utils/connectivityUtil.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class LoggedPetSitterProfile extends StatefulWidget {
   final String petSitterId;
@@ -26,10 +20,18 @@ class LoggedPetSitterProfile extends StatefulWidget {
 }
 
 class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
+  bool _isDisposed = false;
+  bool isLoading = false;
   var reviews = [];
   var _petSitterData;
   TextEditingController _firstNameEditingController = TextEditingController();
   TextEditingController _lastNameEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
 
   // @override
   // void initState() {
@@ -65,9 +67,32 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                   padding: EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 100,
-                        backgroundImage: AssetImage(_petSitterData!['image']),
+                      Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          isLoading
+                              ? CircularProgressIndicator()
+                              : CircleAvatar(
+                                  radius: 100,
+                                  backgroundImage: _petSitterData['photoUrl'] !=
+                                          null
+                                      ? NetworkImage(_petSitterData['photoUrl'])
+                                      : AssetImage(_petSitterData['image'])
+                                          as ImageProvider<Object>?,
+                                  // AssetImage(_petSitterData!['image']),
+                                ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: Colors.blue,
+                              size: 25.0,
+                            ),
+                            onPressed: () {
+                              _pickAndUploadProfilePicture();
+                              // Add your logic for changing the picture here
+                            },
+                          ),
+                        ],
                       ),
                       Center(
                         child: Row(
@@ -83,7 +108,11 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.edit),
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Colors.blue,
+                                    size: 20.0,
+                                  ),
                                   onPressed: () {
                                     showEditNameDialog(context);
                                   },
@@ -94,7 +123,7 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                           ],
                         ),
                       ),
-                                            if (_petSitterData['sumRate'] != null &&
+                      if (_petSitterData['sumRate'] != null &&
                           _petSitterData['sumReview'] != null &&
                           _petSitterData['sumRate'] > 0 &&
                           _petSitterData['sumReview'] > 0) ...[
@@ -103,13 +132,16 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               RatingBar.builder(
-                                initialRating: (_petSitterData['sumRate'] / _petSitterData['sumReview']).toDouble(),
+                                initialRating: (_petSitterData['sumRate'] /
+                                        _petSitterData['sumReview'])
+                                    .toDouble(),
                                 minRating: 1,
                                 direction: Axis.horizontal,
                                 allowHalfRating: true,
                                 itemCount: 5,
                                 itemSize: 30,
-                                ignoreGestures: true, // Disable user interaction
+                                ignoreGestures:
+                                    true, // Disable user interaction
                                 itemBuilder: (context, _) => Icon(
                                   Icons.star,
                                   color: Colors.amber,
@@ -124,7 +156,7 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                             ],
                           ),
                         ),
-                      ]else ...[
+                      ] else ...[
                         Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +166,8 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                                 direction: Axis.horizontal,
                                 itemCount: 5,
                                 itemSize: 30,
-                                ignoreGestures: true, // Disable user interaction
+                                ignoreGestures:
+                                    true, // Disable user interaction
                                 itemBuilder: (context, _) => Icon(
                                   Icons.star,
                                   color: Colors.amber,
@@ -273,6 +306,37 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
     _lastNameEditingController.text = nameParts.length > 1 ? nameParts[1] : '';
 
     return petSitter;
+  }
+
+  // Function to pick and upload profile picture
+  Future<void> _pickAndUploadProfilePicture() async {
+    if (_isDisposed) return;
+    setState(() {
+      isLoading = true;
+    });
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (_isDisposed) return;
+    if (mounted && pickedFile == null) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+      String? profilePictureUrl =
+          await UserDataService().uploadProfilePicture(imageFile);
+      if (_isDisposed) return;
+      if (profilePictureUrl != null) {
+        // Update profile picture URL in Firestore
+        await UserDataService().updatePhotoUrl(profilePictureUrl);
+        if (_isDisposed) return;
+        setState(() {
+          _petSitterData['photoUrl'] = profilePictureUrl;
+          isLoading = false;
+        });
+      }
+    }
   }
 
   void showContactInfo(BuildContext context, String email, String phoneNumber) {

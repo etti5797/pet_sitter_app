@@ -55,8 +55,9 @@ class _RecentPetSitterCardState extends State<RecentPetSitterCard> {
           contentPadding: EdgeInsets.all(5),
           leading: CircleAvatar(
             radius: 30,
-            backgroundImage:
-                Image.asset(widget.petSitterSnapshot['image']).image,
+            backgroundImage: widget.petSitterSnapshot.data()!.containsKey('photoUrl') && widget.petSitterSnapshot['photoUrl'] != ''
+                                      ? NetworkImage(widget.petSitterSnapshot['photoUrl'])
+                                      : AssetImage(widget.petSitterSnapshot['image']) as ImageProvider<Object>?,
           ),
           title: Text(
             petSitterName,

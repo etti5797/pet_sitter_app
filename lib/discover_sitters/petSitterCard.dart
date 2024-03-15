@@ -9,8 +9,10 @@ class PetSitterCard extends StatefulWidget {
   final String city;
   final String email;
   final String imagePath;
+  final String? photoUrl;
 
-  PetSitterCard({Key? key, required this.name, required this.petType, required this.city, required this.email, required this.imagePath})
+  PetSitterCard({Key? key, required this.name, required this.petType, required this.city,
+   required this.email, required this.imagePath, required this.photoUrl})
       : super(key: key);
 
   @override
@@ -46,7 +48,6 @@ class _PetSitterCardState extends State<PetSitterCard> {
         children: [
           GestureDetector(
             onTap: () {
-              //TODO: Navigate to the pet sitter's profile
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => PetSitterProfile(petSitterId: widget.email, 
@@ -64,7 +65,7 @@ class _PetSitterCardState extends State<PetSitterCard> {
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: Image.asset(widget.imagePath).image,
+                      image: widget.photoUrl != null && widget.photoUrl!.isNotEmpty ? NetworkImage(widget.photoUrl!) : Image.asset(widget.imagePath).image,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -86,17 +87,6 @@ class _PetSitterCardState extends State<PetSitterCard> {
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    // GestureDetector(
-                    //   onTap: () {
-                    //     setState(() {
-                    //       isFavorite = !isFavorite;
-                    //     });
-                    //   },
-                    //   child: Icon(
-                    //     isFavorite ? Icons.favorite : Icons.favorite_border,
-                    //     color: isFavorite ? Colors.red : null,
-                    //   ),
-                    // ),
                   ],
                 ),
                 Row(
