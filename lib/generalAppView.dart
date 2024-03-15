@@ -8,6 +8,7 @@ import 'package:petsitter/profiles/RegularUserProfile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'utils/connectivityUtil.dart';
+import 'package:petsitter/in_app_chat/chatListPage.dart';
 
 class GeneralAppPage extends StatefulWidget {
   final int initialIndex;
@@ -25,6 +26,7 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
     ExploreScreen(),
     RecentlyViewedScreen(),
     FavoritesScreen(),
+    ChatsListPage(),
     UserProfile(),
   ];
 
@@ -99,6 +101,10 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Favorites',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline_outlined),   
+            label: 'Chats',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),

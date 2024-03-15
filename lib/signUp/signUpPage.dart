@@ -25,7 +25,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool isSpecialUser = false;
   String _firstName = '';
   String _lastName = '';
-  String _phoneNumber = '';
+  //String _phoneNumber = '';
   String? _city = '';
   String? _district = '';
   String? _state = '';
@@ -83,7 +83,7 @@ class _SignUpPageState extends State<SignUpPage> {
               'email': user!.email,
               'city': _city,
               'district': _district,
-              'phoneNumber': _phoneNumber,
+              //'phoneNumber': _phoneNumber,
               'pets': _pets,
               'gender': _gender,
               'image': randomImagePath,
@@ -407,7 +407,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _showAdditionalQuestionsPopup() {
     TextEditingController genderController = TextEditingController();
-    TextEditingController phoneNumberController = TextEditingController();
+    //TextEditingController phoneNumberController = TextEditingController();
     List<String> selectedPets = [];
 
     final _specialFormKey = GlobalKey<FormState>();
@@ -448,22 +448,22 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   SizedBox(height: 8.0),
                   // Question 2: Phone Number
-                  TextFormField(
-                    controller: phoneNumberController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter Phone Number';
-                      } else if (!_isValidIsraeliMobilePhoneNumber(value)) {
-                        return 'Invalid Israeli mobile phone number';
-                      }
-                      _phoneNumber = value;
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 8.0),
+                  // TextFormField(
+                  //   controller: phoneNumberController,
+                  //   decoration: InputDecoration(
+                  //     labelText: 'Phone Number',
+                  //   ),
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please enter Phone Number';
+                  //     } else if (!_isValidIsraeliMobilePhoneNumber(value)) {
+                  //       return 'Invalid Israeli mobile phone number';
+                  //     }
+                  //     _phoneNumber = value;
+                  //     return null;
+                  //   },
+                  // ),
+                  //SizedBox(height: 8.0),
                   MultiSelectDialogField(
                     items: ['Dogs', 'Cats']
                         .map((pet) => MultiSelectItem<String>(pet, pet))
@@ -536,9 +536,9 @@ class _SignUpPageState extends State<SignUpPage> {
   // TODO: need to verify all combinations of choosing check box and cancelling it// Cancel
   // global variables need to be cleaned after cancelling the check box and filled after submission
 
-  bool _isValidIsraeliMobilePhoneNumber(String phoneNumber) {
-    // Regular expression to match Israeli mobile phone number format
-    RegExp regex = RegExp(r'^05[0-9]{8}$');
-    return regex.hasMatch(phoneNumber);
-  }
+  // bool _isValidIsraeliMobilePhoneNumber(String phoneNumber) {
+  //   // Regular expression to match Israeli mobile phone number format
+  //   RegExp regex = RegExp(r'^05[0-9]{8}$');
+  //   return regex.hasMatch(phoneNumber);
+  // }
 }

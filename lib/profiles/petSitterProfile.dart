@@ -1,5 +1,4 @@
 import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
@@ -12,6 +11,7 @@ import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:petsitter/in_app_chat/chats_page.dart';
 
 class PetSitterProfile extends StatefulWidget {
   final String petSitterId; // this is email
@@ -51,6 +51,15 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
           } else {
             if (widget.petSitterId != user.email) {
               userFavorites.insert(0, petSitterReference);
+            }
+            else
+            {
+              ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('You cannot add yourself to favorites!'),
+                duration: Duration(seconds: 5),
+              ),
+            );
             }
             if (userFavorites.length > 25) {
               userFavorites.removeLast();
@@ -284,15 +293,41 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                     ],
                   ),
                 ),
-                // Show contact info button at the bottom
                 FloatingActionButton(
-                  onPressed: () {
-                    showContactInfo(context, _petSitterData['email'],
-                        _petSitterData['phoneNumber']);
-                    addToRecentlyViewed();
+                  onPressed: () async {
+                    final currentUser = FirebaseAuth.instance.currentUser;
+                    if (currentUser != null && currentUser.email != widget.petSitterId) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatWidget(
+                            userId: currentUser.email!, // Use the current user's ID
+                            otherUserId: widget.petSitterId,
+                          ),
+                        ),
+                      );
+                      addToRecentlyViewed();
+                    }
+                    else{
+                      ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('You cannot chat with yourself!'),
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
+                    }
                   },
-                  child: Text('Show contact info'),
+                  child: Text('Start chat'),
                 ),
+                // Show contact info button at the bottom
+                // FloatingActionButton(
+                //   onPressed: () {
+                //     showContactInfo(context, _petSitterData['email'],
+                //         _petSitterData['phoneNumber']);
+                //     addToRecentlyViewed();
+                //   },
+                //   child: Text('Show contact info'),
+                // ),
               ],
             ),
           ),
