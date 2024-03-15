@@ -27,7 +27,7 @@ class _GeneralAppPageState extends State<GeneralAppPage> {
     RecentlyViewedScreen(),
     FavoritesScreen(),
     UserProfile(),
-    ChatsListPage(userId: 'petsitter4321@gmail.com'),
+    ChatsListPage(),
   ];
 
   @override

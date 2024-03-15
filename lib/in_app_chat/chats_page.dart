@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:math';
+
 
 class ChatWidget extends StatefulWidget {
   final String userId; // Unique ID of the current user
@@ -17,6 +19,8 @@ class _ChatWidgetState extends State<ChatWidget> {
   late CollectionReference _messagesCollection;
   late Future<String> userNameFuture;
   late Future<String> otherUserNameFuture;
+  late String userName; // Instance variable to store user name
+  late String otherUserName; // Instance variable to store other user name
 
   TextEditingController _textEditingController = TextEditingController();
 
@@ -26,6 +30,10 @@ class _ChatWidgetState extends State<ChatWidget> {
     _messagesCollection = FirebaseFirestore.instance.collection('messages');
     userNameFuture = getUserName(widget.userId);
     otherUserNameFuture = getUserName(widget.otherUserId);
+
+     // Assign values to instance variables when futures are resolved
+    userNameFuture.then((value) => userName = value);
+    otherUserNameFuture.then((value) => otherUserName = value);
   }
 
   Future<String> getUserName(String userId) async {
@@ -130,6 +138,7 @@ class _ChatWidgetState extends State<ChatWidget> {
               children: [
                 Expanded(
                   child: TextField(
+                    maxLines: 2,
                     controller: _textEditingController,
                     decoration: InputDecoration(
                       hintText: 'Enter message...',
@@ -169,6 +178,30 @@ class _ChatWidgetState extends State<ChatWidget> {
         'receiverId': widget.otherUserId,
         'message': message,
         'timestamp': time,
+      });
+
+      String helper;
+      if (message.length > 80) {
+        helper = ' ...';
+      } else {
+        helper = "";
+      }
+
+      FirebaseFirestore.instance.collection('chatsPage').doc(widget.userId + "," + widget.otherUserId).set({
+        'with': widget.otherUserId,
+        'userId': widget.userId,
+        'lastMessage': message.substring(0, min(80, message.length)) + helper, // Take the first 30 characters or the entire message if it's shorter,
+        'timestamp': time,
+        //'name': recieverName, // "STAMPA ALEXANDRA
+        'nameToBeDisplayed': otherUserName,
+      });
+
+      FirebaseFirestore.instance.collection('chatsPage').doc(widget.otherUserId + "," + widget.userId).set({
+        'with': widget.userId,
+        'userId': widget.otherUserId,
+        'lastMessage': message.substring(0, min(80, message.length)) + helper, // Take the first 30 characters or the entire message if it's shorter,
+        'timestamp': time,
+        'nameToBeDisplayed': userName,
       });
     }
   }
