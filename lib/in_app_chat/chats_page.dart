@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:petsitter/notifications/NotificationHandler.dart';
 import 'dart:math';
 import '../utils/connectivityUtil.dart';
+import '../services/AnyUserDataService.dart';
 
 
 class ChatWidget extends StatefulWidget {
@@ -173,7 +175,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     );
   }
 
-  void _sendMessage() {
+  void _sendMessage() async {
     String message = _textEditingController.text.trim();
     if (message.isNotEmpty) {
       _textEditingController.clear();
@@ -217,6 +219,10 @@ class _ChatWidgetState extends State<ChatWidget> {
         'nameToBeDisplayed': userName,
       });
     }
+
+    String recipientToken = await AnyUserDataService().getUserPushToken(widget.otherUserId);
+
+    sendPushNotification(recipientToken, otherUserName, message);
   }
 }
 

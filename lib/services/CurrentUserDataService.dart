@@ -426,4 +426,18 @@ Future<void> addFavoriteDocuments(DocumentReference documentReference) async {
     }
   }
   
+  Future<void> pushTokenToFirestore(String token) async {
+    try {
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'pushToken': token,
+        });
+      }
+    } catch (e) {
+      print('Error updating push token: $e');
+    }
+  }
+  
 }

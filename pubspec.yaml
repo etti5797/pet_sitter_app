@@ -33,6 +33,8 @@ dependencies:
   google_fonts:
   firebase_core: ^2.25.4
   firebase_storage: 
+  firebase_messaging:
+  flutter_local_notifications:
 
   intl:
   # The following adds the Cupertino Icons font to your application.

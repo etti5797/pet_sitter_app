@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petsitter/signUp/signUpPage.dart';
 import '../generalAppView.dart';
 import '../utils/connectivityUtil.dart';
+import '../notifications/FMessageAPI.dart';
 
 class GoogleSignInHandler {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -52,8 +53,10 @@ class GoogleSignInHandler {
               context, 'You need to sign up before signing in with Google.');
         } else {
           Navigator.pop(context); // Dismiss loading indicator dialog
+          FirebaseMessagingAPI().initNotifications(context);  
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => GeneralAppPage()));
+
           return true;
         }
       } catch (error) {

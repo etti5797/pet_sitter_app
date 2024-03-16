@@ -6,6 +6,7 @@ import 'package:petsitter/in_app_chat/chats_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChatsListPage extends StatelessWidget {
+  static const route = '../in_app_chat/chatsListPage';
   @override
   Widget build(BuildContext context) {
     final FirebaseAuth _auth = FirebaseAuth.instance;

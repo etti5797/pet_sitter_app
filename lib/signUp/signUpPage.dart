@@ -11,6 +11,7 @@ import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../generalAppView.dart';
 import '../pet_sitters_images_handler/petSitterPetsFound.dart';
 import '../utils/connectivityUtil.dart';
+import '../notifications/FMessageAPI.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -102,7 +103,7 @@ class _SignUpPageState extends State<SignUpPage> {
               'district': _district,
             });
           }
-
+          FirebaseMessagingAPI().initNotifications(context);
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => GeneralAppPage()));
         }
