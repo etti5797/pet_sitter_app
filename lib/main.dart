@@ -8,6 +8,7 @@ import 'homePages/designedHomePage.dart' as designedHomePage;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'notifications/NotificationHandler.dart' as NotificationHandler;
 import 'notifications/FMessageAPI.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -16,7 +17,12 @@ void main() async {
   await Firebase.initializeApp();
   // FirebaseMessagingAPI().initNotifications();
   NotificationHandler.initialize();
-  runApp(const MyApp());
+  runApp(
+      OverlaySupport(
+      child: const MyApp(),
+    ),
+  );
+  // runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -26,6 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Pet Sitter',
+      scaffoldMessengerKey: FirebaseMessagingAPI.scaffoldMessengerKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 201, 160, 106)),

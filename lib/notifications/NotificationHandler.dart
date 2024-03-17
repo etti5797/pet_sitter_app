@@ -19,7 +19,8 @@ void sendPushNotification(String recipientToken, String senderName, String messa
     'data': {
       'click_action': 'FLUTTER_NOTIFICATION_CLICK',
       'id': '1',
-      'status': 'done'
+      'status': 'done',
+      'senderName': senderName,
     }
   };
 

@@ -222,7 +222,7 @@ class _ChatWidgetState extends State<ChatWidget> {
 
     String recipientToken = await AnyUserDataService().getUserPushToken(widget.otherUserId);
 
-    sendPushNotification(recipientToken, otherUserName, message);
+    sendPushNotification(recipientToken, userName , message);
   }
 }
 
