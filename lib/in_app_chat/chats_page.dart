@@ -3,10 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petsitter/notifications/NotificationHandler.dart';
+import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'dart:math';
-import '../utils/connectivityUtil.dart';
 import '../services/AnyUserDataService.dart';
-
 
 class ChatWidget extends StatefulWidget {
   final String userId; // Unique ID of the current user
@@ -31,12 +30,13 @@ class _ChatWidgetState extends State<ChatWidget> {
   void initState() {
     super.initState();
     _messagesCollection = FirebaseFirestore.instance.collection('messages');
-    userNameFuture = getUserName(widget.userId);
-    otherUserNameFuture = getUserName(widget.otherUserId);
+    // userNameFuture = getUserName(widget.userId);
+    userNameFuture = UserDataService().getUserName();
+    // otherUserNameFuture = getUserName(widget.otherUserId);
 
-     // Assign values to instance variables when futures are resolved
+    // Assign values to instance variables when futures are resolved
     userNameFuture.then((value) => userName = value);
-    otherUserNameFuture.then((value) => otherUserName = value);
+    // otherUserNameFuture.then((value) => otherUserName = value);
   }
 
   Future<String> getUserName(String userId) async {
@@ -47,27 +47,41 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   @override
   Widget build(BuildContext context) {
+    String currentUserMail = widget.userId;
+    String senderMail = widget.otherUserId;
+    // Retrieve arguments
+    if (widget.userId.isEmpty || widget.otherUserId.isEmpty) {
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, String>;
+      currentUserMail = args['currentUserMail']!;
+      senderMail = args['senderMail']!;
+    } 
+
+    otherUserNameFuture = getUserName(senderMail);
+
     return Scaffold(
       //resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 201, 160, 106),
         title: Text(
           'Chat',
-           style: GoogleFonts.pacifico(
-                fontSize: 30,
-                color: const Color.fromARGB(255, 255, 255, 255),
-              ),
+          style: GoogleFonts.pacifico(
+            fontSize: 30,
+            color: const Color.fromARGB(255, 255, 255, 255),
+          ),
         ),
         centerTitle: true,
       ),
-      
+
       body: Column(
         children: [
           Expanded(
             child: FutureBuilder(
               future: userNameFuture,
-              builder: (BuildContext context, AsyncSnapshot<String> userNameSnapshot) {
-                if (userNameSnapshot.connectionState == ConnectionState.waiting) {
+              builder: (BuildContext context,
+                  AsyncSnapshot<String> userNameSnapshot) {
+                if (userNameSnapshot.connectionState ==
+                    ConnectionState.waiting) {
                   return Container(
                     alignment: Alignment.center,
                     height: 50, // Specify the desired height
@@ -80,58 +94,72 @@ class _ChatWidgetState extends State<ChatWidget> {
                 }
                 return FutureBuilder(
                   future: otherUserNameFuture,
-                  builder: (BuildContext context, AsyncSnapshot<String> otherUserNameSnapshot) {
-                    if (otherUserNameSnapshot.connectionState == ConnectionState.waiting) {
+                  builder: (BuildContext context,
+                      AsyncSnapshot<String> otherUserNameSnapshot) {
+                    if (otherUserNameSnapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return Container(
-                      alignment: Alignment.center,
-                      height: 50, // Specify the desired height
-                      width: 50, // Specify the desired width
-                      child: CircularProgressIndicator(),
-                    );
+                        alignment: Alignment.center,
+                        height: 50, // Specify the desired height
+                        width: 50, // Specify the desired width
+                        child: CircularProgressIndicator(),
+                      );
                     }
                     if (otherUserNameSnapshot.hasError) {
                       return Text('Error: ${otherUserNameSnapshot.error}');
                     }
 
                     return StreamBuilder<QuerySnapshot>(
-                      stream: _messagesCollection.doc(widget.userId).collection("chat").doc(widget.otherUserId)
-                      .collection('private_messages')
-                      .orderBy('timestamp', descending: true)
-                      .limit(100)
-                      .snapshots(),
-                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      stream: _messagesCollection
+                          .doc(currentUserMail)
+                          .collection("chat")
+                          .doc(senderMail)
+                          .collection('private_messages')
+                          .orderBy('timestamp', descending: true)
+                          .limit(100)
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
                         if (snapshot.hasError) {
                           return Text('Error: ${snapshot.error}');
                         }
 
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return Container(
-                          alignment: Alignment.center,
-                          height: 50, // Specify the desired height
-                          width: 50, // Specify the desired width
-                          child: CircularProgressIndicator(),
-                        );
+                            alignment: Alignment.center,
+                            height: 50, // Specify the desired height
+                            width: 50, // Specify the desired width
+                            child: CircularProgressIndicator(),
+                          );
                         }
 
                         return ListView(
-                          reverse: true, // to show the latest messages at the bottom
+                          reverse:
+                              true, // to show the latest messages at the bottom
                           padding: EdgeInsets.all(8.0),
-                          children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                          children: snapshot.data!.docs
+                              .map((DocumentSnapshot document) {
                             Map<String, dynamic> data =
                                 document.data() as Map<String, dynamic>;
-                            bool isCurrentUser = data['senderId'] == widget.userId;
+                            bool isCurrentUser =
+                                data['senderId'] == currentUserMail;
                             String senderName = isCurrentUser
                                 ? userNameSnapshot.data ?? 'You'
                                 : otherUserNameSnapshot.data ?? 'Other User';
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4.0),
                               child: Row(
-                                mainAxisAlignment: isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+                                mainAxisAlignment: isCurrentUser
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
                                 children: [
                                   Bubble(
                                     message: data['message'],
                                     senderName: senderName,
-                                    timestamp: (data['timestamp'] as Timestamp).toDate(),
+                                    timestamp: (data['timestamp'] as Timestamp)
+                                        .toDate(),
                                     isCurrentUser: isCurrentUser,
                                   ),
                                 ],
@@ -163,8 +191,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                   icon: Icon(Icons.send),
                   onPressed: () {
                     // Send message
-                    _sendMessage();
-
+                    _sendMessage(currentUserMail!, senderMail!);
                   },
                 ),
               ],
@@ -175,22 +202,32 @@ class _ChatWidgetState extends State<ChatWidget> {
     );
   }
 
-  void _sendMessage() async {
+  void _sendMessage(String currentUserMail, String senderMail) async {
     String message = _textEditingController.text.trim();
     if (message.isNotEmpty) {
       _textEditingController.clear();
 
       var time = DateTime.now();
-      _messagesCollection.doc(widget.userId).collection("chat").doc(widget.otherUserId).collection('private_messages').add({
-        'senderId': widget.userId,
-        'receiverId': widget.otherUserId,
+      _messagesCollection
+          .doc(currentUserMail)
+          .collection("chat")
+          .doc(senderMail)
+          .collection('private_messages')
+          .add({
+        'senderId': currentUserMail,
+        'receiverId': senderMail,
         'message': message,
         'timestamp': time,
       });
 
-      _messagesCollection.doc(widget.otherUserId).collection("chat").doc(widget.userId).collection('private_messages').add({
-        'senderId': widget.userId,
-        'receiverId': widget.otherUserId,
+      _messagesCollection
+          .doc(senderMail)
+          .collection("chat")
+          .doc(currentUserMail)
+          .collection('private_messages')
+          .add({
+        'senderId': currentUserMail,
+        'receiverId': senderMail,
         'message': message,
         'timestamp': time,
       });
@@ -202,30 +239,38 @@ class _ChatWidgetState extends State<ChatWidget> {
         helper = "";
       }
 
-      FirebaseFirestore.instance.collection('chatsPage').doc(widget.userId + "," + widget.otherUserId).set({
-        'with': widget.otherUserId,
-        'userId': widget.userId,
-        'lastMessage': message.substring(0, min(80, message.length)) + helper, // Take the first 30 characters or the entire message if it's shorter,
+      FirebaseFirestore.instance
+          .collection('chatsPage')
+          .doc(currentUserMail + "," + senderMail)
+          .set({
+        'with': senderMail,
+        'userId': currentUserMail,
+        'lastMessage': message.substring(0, min(80, message.length)) +
+            helper, // Take the first 30 characters or the entire message if it's shorter,
         'timestamp': time,
         //'name': recieverName, // "STAMPA ALEXANDRA
         'nameToBeDisplayed': otherUserName,
       });
 
-      FirebaseFirestore.instance.collection('chatsPage').doc(widget.otherUserId + "," + widget.userId).set({
-        'with': widget.userId,
-        'userId': widget.otherUserId,
-        'lastMessage': message.substring(0, min(80, message.length)) + helper, // Take the first 30 characters or the entire message if it's shorter,
+      FirebaseFirestore.instance
+          .collection('chatsPage')
+          .doc(senderMail + "," + currentUserMail)
+          .set({
+        'with': currentUserMail,
+        'userId': senderMail,
+        'lastMessage': message.substring(0, min(80, message.length)) +
+            helper, // Take the first 30 characters or the entire message if it's shorter,
         'timestamp': time,
         'nameToBeDisplayed': userName,
       });
     }
 
-    String recipientToken = await AnyUserDataService().getUserPushToken(widget.otherUserId);
+    String recipientToken =
+        await AnyUserDataService().getUserPushToken(senderMail);
 
-    sendPushNotification(recipientToken, userName , message);
+    sendPushNotification(recipientToken, userName, currentUserMail, message);
   }
 }
-
 
 class Bubble extends StatelessWidget {
   final String message;
@@ -243,16 +288,20 @@ class Bubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isCurrentUser ? Color.fromARGB(255, 201, 160, 106) : Color.fromARGB(255, 247, 222, 169),
+            color: isCurrentUser
+                ? Color.fromARGB(255, 201, 160, 106)
+                : Color.fromARGB(255, 247, 222, 169),
             borderRadius: BorderRadius.circular(8.0),
           ),
           padding: EdgeInsets.all(8.0),
           constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.7, // Limiting width to 70% of screen width
+            maxWidth: MediaQuery.of(context).size.width *
+                0.7, // Limiting width to 70% of screen width
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +318,9 @@ class Bubble extends StatelessWidget {
                 message,
                 style: TextStyle(
                   fontSize: 16.0,
-                  color: isCurrentUser ? const Color.fromARGB(255, 0, 0, 0) : Colors.black,
+                  color: isCurrentUser
+                      ? const Color.fromARGB(255, 0, 0, 0)
+                      : Colors.black,
                 ),
                 softWrap: true, // Allow text to wrap
               ),
@@ -279,24 +330,24 @@ class Bubble extends StatelessWidget {
       ],
     );
   }
-
 }
+
 void showSignUpDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Sign In Error'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the dialog
-              },
-              child: Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Sign In Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+        ],
+      );
+    },
+  );
+}

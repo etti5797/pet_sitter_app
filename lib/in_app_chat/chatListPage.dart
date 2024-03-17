@@ -117,7 +117,8 @@ class BubbleListItem extends StatelessWidget {
       subtitle: Container(
         padding: EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 247, 222, 169), // Background color of the bubble
+          color: Color.fromARGB(
+              255, 247, 222, 169), // Background color of the bubble
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Column(

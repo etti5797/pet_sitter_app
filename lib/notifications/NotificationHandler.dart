@@ -2,7 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-void sendPushNotification(String recipientToken, String senderName, String message) async {
+void sendPushNotification(String recipientToken, String senderName, String senderMail, String message) async {
   var url = Uri.parse('https://fcm.googleapis.com/fcm/send');
   var headers = {
     'Content-Type': 'application/json',
@@ -21,6 +21,7 @@ void sendPushNotification(String recipientToken, String senderName, String messa
       'id': '1',
       'status': 'done',
       'senderName': senderName,
+      'senderMail': senderMail,
     }
   };
 

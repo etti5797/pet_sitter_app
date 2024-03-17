@@ -9,8 +9,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'notifications/NotificationHandler.dart' as NotificationHandler;
 import 'notifications/FMessageAPI.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'in_app_chat/chats_page.dart';
 
-final navigatorKey = GlobalKey<NavigatorState>();
+// final navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +20,7 @@ void main() async {
   // FirebaseMessagingAPI().initNotifications();
   NotificationHandler.initialize();
   runApp(
-      OverlaySupport(
+    OverlaySupport(
       child: const MyApp(),
     ),
   );
@@ -31,6 +33,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
+      routes: {
+        '/singleChat': (context) => ChatWidget(userId: '', otherUserId: ''),
+      },
       title: 'Pet Sitter',
       scaffoldMessengerKey: FirebaseMessagingAPI.scaffoldMessengerKey,
       theme: ThemeData(
@@ -43,5 +49,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-

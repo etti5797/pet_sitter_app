@@ -9,15 +9,22 @@ import '../in_app_chat/chatListPage.dart';
 import 'TopSnackBar.dart';
 import 'NewMessageIndicator.dart';
 import 'NewMessageBanner.dart';
+import '../in_app_chat/chats_page.dart';
 
 Future<void> handleBackgroundMessage(RemoteMessage message) async {
   print("Handling a background message: ${message.data}");
 }
 
 class FirebaseMessagingAPI {
-    static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+  static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
   static FirebaseMessaging fMessaging = FirebaseMessaging.instance;
+
+  String currentUserMail =  '';
+
+  Future<void> initCurrentUserMail() async {
+     currentUserMail = await UserDataService().getUserEmail();
+  }
 
   void handleMessage(RemoteMessage? message) {
     if (message == null) {
@@ -26,89 +33,59 @@ class FirebaseMessagingAPI {
     }
 
     print("Handling a message: ${message.data}");
-    // scaffoldMessengerKey.currentState!.showSnackBar(
-    //               SnackBar(
-    //           content: Text('New message received'),
-    //         ),);
-
-final customBanner = MaterialBanner(
-  content: Text('New message received'),
-  leading: Icon(Icons.message),
-  actions: [
-    TextButton(
-      onPressed: () {
-        // Handle tap event, e.g., navigate to chat screen
-        // You can add your navigation logic here
-        print('Tapped on new message banner');
-      },
-      child: Text('View'),
-    ),
-  ],
-);
 
     if (FirebaseMessagingAPI.scaffoldMessengerKey.currentState != null) {
-      final scaffoldMessenger = FirebaseMessagingAPI.scaffoldMessengerKey.currentState;
-
-      // FirebaseMessagingAPI.scaffoldMessengerKey.currentState!.showSnackBar(
-      //   SnackBar(
-      //     content: Text('New message received'),
-      //     behavior: SnackBarBehavior.fixed,
-      //     // margin: EdgeInsets.only(top: 0.0), // Set the top position to 0
-      //     duration: Duration(seconds: 3),
-      //   ),
-      // );
+      final scaffoldMessenger =
+          FirebaseMessagingAPI.scaffoldMessengerKey.currentState;
 
       String senderName = message.data['senderName'] ?? 'senderName';
+      String senderMail = message.data['senderMail'] ?? 'senderMail';
+
       final indicator = NewMessageIndicator(
-      userName: 'senderName',
-      onTap: () {
-        // Handle tap event, e.g., navigate to chat screen
-        // You can add your navigation logic here
-        print('Tapped on new message indicator');
-      },
-    );
-    //   final banner = NewMessageBanner(
-    //   userName: 'senderName',
-    //   onTap: () {
-    //     // Handle tap event, e.g., navigate to chat screen
-    //     // You can add your navigation logic here
-    //     print('Tapped on new message banner');
-    //   },
-    // );
+        userName: senderName,
+        userMail: senderMail,
+        onTap: () {
+          FirebaseMessagingAPI.scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          navigatorKey.currentState?.pushNamed('/singleChat', 
+            arguments: {'currentUserMail': currentUserMail, 'senderMail': senderMail}
+          );
+          print('Tapped on new message indicator');
+        },
+      );
+      //   final banner = NewMessageBanner(
+      //   userName: 'senderName',
+      //   onTap: () {
+      //     // Handle tap event, e.g., navigate to chat screen
+      //     // You can add your navigation logic here
+      //     print('Tapped on new message banner');
+      //   },
+      // );
 
-
-  //   FirebaseMessagingAPI.scaffoldMessengerKey.currentState!.showMaterialBanner(
-  //       MaterialBanner(
-  //   content: Text('New message received'),
-  //   leading: Icon(Icons.message),
-  //   actions: [
-  //     TextButton(
-  //       onPressed: () {
-  //         // Handle tap event, e.g., navigate to chat screen
-  //         // You can add your navigation logic here
-  //         print('Tapped on new message banner');
-  //       },
-  //       child: Text('View'),
-  //     ),
-  //   ],
-  // ),
-  //   );
-        FirebaseMessagingAPI.scaffoldMessengerKey.currentState!.showSnackBar(
-      SnackBar(
-        content: indicator,
-        duration: Duration(seconds: 6),
-      ),
-    );
-
+      //   FirebaseMessagingAPI.scaffoldMessengerKey.currentState!.showMaterialBanner(
+      //       MaterialBanner(
+      //   content: Text('New message received'),
+      //   leading: Icon(Icons.message),
+      //   actions: [
+      //     TextButton(
+      //       onPressed: () {
+      //         // Handle tap event, e.g., navigate to chat screen
+      //         // You can add your navigation logic here
+      //         print('Tapped on new message banner');
+      //       },
+      //       child: Text('View'),
+      //     ),
+      //   ],
+      // ),
+      //   );
+      FirebaseMessagingAPI.scaffoldMessengerKey.currentState!.showSnackBar(
+        SnackBar(
+          content: indicator,
+          duration: Duration(seconds: 6),
+        ),
+      );
     } else {
       print("ScaffoldMessenger is not available");
-      // Handle the case where ScaffoldMessenger is not available
     }
-
-    //TODO: need to navigate to the relevant chat...
-    // navigatorKey.currentState!.pushNamed(
-    //   ChatsListPage.route,
-    // );
   }
 
   Future initPushNotifications() async {
@@ -122,15 +99,15 @@ final customBanner = MaterialBanner(
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       handleMessage(message);
     });
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print("Message received: ${message.data}");
-    handleMessage(message); // Handle message when app is in foreground
-  });
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("Message received: ${message.data}");
+      handleMessage(message); // Handle message when app is in foreground
+    });
 
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print("Message opened app: ${message.data}");
-    // Handle message when app is opened from a terminated state
-  });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("Message opened app: ${message.data}");
+      // Handle message when app is opened from a terminated state
+    });
     FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
   }
 
@@ -151,15 +128,17 @@ final customBanner = MaterialBanner(
           UserDataService().pushTokenToFirestore(token);
         }
       });
+      initCurrentUserMail();
       initPushNotifications();
     } else {
       print('User did not grant permission to receive notifications');
-        showDialog(
+      showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: Text('Notifications Disabled'),
-            content: Text('To receive notifications, please enable them in the app settings.'),
+            content: Text(
+                'To receive notifications, please enable them in the app settings.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -174,8 +153,7 @@ final customBanner = MaterialBanner(
     }
   }
 
-
-    static void showNewMessageOverlay() {
+  static void showNewMessageOverlay() {
     final customBanner = MaterialBanner(
       content: Text('New message received'),
       leading: Icon(Icons.message),

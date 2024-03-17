@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 class NewMessageIndicator extends StatelessWidget {
   final String userName;
+  final String userMail;
   final VoidCallback onTap;
 
   const NewMessageIndicator({
     Key? key,
     required this.userName,
+    required this.userMail,
     required this.onTap,
   }) : super(key: key);
 
