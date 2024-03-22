@@ -18,6 +18,18 @@ class UserDataService {
       userEmail = '';
       userName = '';
       userImage = '';
+      userPhotoUrl = '';
+      cleanPushToken();
+    }
+
+    Future<void> cleanPushToken() async {
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'pushToken': '',
+        });
+      }
     }
 
     Future<String> getUserName() async {

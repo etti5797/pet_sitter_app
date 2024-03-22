@@ -25,4 +25,40 @@ class AnyUserDataService {
     }
   }
 
+  Future<String> getUserPhotoUrl(String email) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await _firestore
+          .collection('users')
+          .doc(email)
+          .get();
+
+      if (userSnapshot.exists) {
+        return userSnapshot['photoUrl'];
+      } else {
+        return '';
+      }
+    } catch (e) {
+      print('Error fetching user image: $e');
+      return ''; // Handle errors as needed
+    }
+  }
+
+  Future<String> getUserStaticImagePath(String email) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot = await _firestore
+          .collection('users')
+          .doc(email)
+          .get();
+
+      if (userSnapshot.exists) {
+        return userSnapshot['image'];
+      } else {
+        return '';
+      }
+    } catch (e) {
+      print('Error fetching user image: $e');
+      return ''; // Handle errors as needed
+    }
+  }
+
 }

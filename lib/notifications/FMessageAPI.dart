@@ -20,10 +20,10 @@ class FirebaseMessagingAPI {
       GlobalKey<ScaffoldMessengerState>();
   static FirebaseMessaging fMessaging = FirebaseMessaging.instance;
 
-  String currentUserMail =  '';
+  String currentUserMail = '';
 
   Future<void> initCurrentUserMail() async {
-     currentUserMail = await UserDataService().getUserEmail();
+    currentUserMail = await UserDataService().getUserEmail();
   }
 
   void handleMessage(RemoteMessage? message) {
@@ -45,10 +45,12 @@ class FirebaseMessagingAPI {
         userName: senderName,
         userMail: senderMail,
         onTap: () {
-          FirebaseMessagingAPI.scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
-          navigatorKey.currentState?.pushNamed('/singleChat', 
-            arguments: {'currentUserMail': currentUserMail, 'senderMail': senderMail}
-          );
+          FirebaseMessagingAPI.scaffoldMessengerKey.currentState
+              ?.hideCurrentSnackBar();
+          navigatorKey.currentState?.pushNamed('/singleChat', arguments: {
+            'currentUserMail': currentUserMail,
+            'senderMail': senderMail
+          });
           print('Tapped on new message indicator');
         },
       );
@@ -106,7 +108,12 @@ class FirebaseMessagingAPI {
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print("Message opened app: ${message.data}");
+      String senderMail = message.data['senderMail'] ?? 'senderMail';
       // Handle message when app is opened from a terminated state
+      navigatorKey.currentState?.pushNamed('/singleChat', arguments: {
+        'currentUserMail': currentUserMail,
+        'senderMail': senderMail
+      });
     });
     FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
   }

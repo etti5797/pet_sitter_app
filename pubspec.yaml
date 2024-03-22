@@ -55,6 +55,7 @@ dependencies:
   connectivity: ^3.0.6
   image_picker: ^1.0.7
   overlay_support: ^2.1.0
+  bubble:
 
 dev_dependencies:
   flutter_test:
@@ -98,6 +99,7 @@ flutter:
     - images/favorites.jpg
     - images/userProfileImage.jpg
     - images/chatsPage.jpg
+    - images/chatBackGround.jpg
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

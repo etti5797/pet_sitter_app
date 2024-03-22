@@ -75,6 +75,7 @@ class _SignUpPageState extends State<SignUpPage> {
             'city': _city,
             'district': _district,
             'favorites': [],
+            'image': 'images/userProfileImage.jpg',
           });
           if (isSpecialUser) {
             String petType = getPetTypeFromList(_pets);
@@ -89,6 +90,9 @@ class _SignUpPageState extends State<SignUpPage> {
               'gender': _gender,
               'image': randomImagePath,
             });
+            await _firestore.collection('users').doc(user!.email).set({
+              'image': randomImagePath,
+          });
           }
 
           // Save city-district mapping to Firestore

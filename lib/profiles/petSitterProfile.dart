@@ -303,6 +303,9 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                           builder: (context) => ChatWidget(
                             userId: currentUser.email!, // Use the current user's ID
                             otherUserId: widget.petSitterId,
+                            photoUrl: _petSitterData['photoUrl'],
+                            staticImagePath: _petSitterData['image'],
+                            otherName: _petSitterData['name'],
                           ),
                         ),
                       );

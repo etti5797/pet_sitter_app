@@ -6,12 +6,25 @@ import 'package:petsitter/notifications/NotificationHandler.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'dart:math';
 import '../services/AnyUserDataService.dart';
+import 'InitialsAvatar.dart';
+import 'ImageAvatar.dart';
+import 'ProfileAvatarFromImage.dart';
+import 'package:bubble/bubble.dart';
 
 class ChatWidget extends StatefulWidget {
   final String userId; // Unique ID of the current user
   final String otherUserId; // Unique ID of the other user
+  final String? photoUrl;
+  final String? staticImagePath;
+  final String otherName;
 
-  ChatWidget({required this.userId, required this.otherUserId});
+  ChatWidget({
+    required this.userId,
+    required this.otherUserId,
+    required this.photoUrl,
+    required this.staticImagePath,
+    required this.otherName,
+  });
 
   @override
   _ChatWidgetState createState() => _ChatWidgetState();
@@ -23,6 +36,12 @@ class _ChatWidgetState extends State<ChatWidget> {
   late Future<String> otherUserNameFuture;
   late String userName; // Instance variable to store user name
   late String otherUserName; // Instance variable to store other user name
+  late Image? image;
+
+  // String? photoUrl;
+  // String? staticImagePath;
+  // String? otherPhotoUrl;
+  // String? otherStaticImagePath;
 
   TextEditingController _textEditingController = TextEditingController();
 
@@ -37,6 +56,15 @@ class _ChatWidgetState extends State<ChatWidget> {
     // Assign values to instance variables when futures are resolved
     userNameFuture.then((value) => userName = value);
     // otherUserNameFuture.then((value) => otherUserName = value);
+
+    if (widget.photoUrl != null && widget.photoUrl!.isNotEmpty) {
+      image = Image.network(widget.photoUrl!);
+    } else if (widget.staticImagePath != null &&
+        widget.staticImagePath!.isNotEmpty) {
+      image = Image.asset(widget.staticImagePath!);
+    } else {
+      image = null;
+    }
   }
 
   Future<String> getUserName(String userId) async {
@@ -55,25 +83,58 @@ class _ChatWidgetState extends State<ChatWidget> {
           ModalRoute.of(context)!.settings.arguments as Map<String, String>;
       currentUserMail = args['currentUserMail']!;
       senderMail = args['senderMail']!;
-    } 
+    }
 
     otherUserNameFuture = getUserName(senderMail);
-
+    
+  
     return Scaffold(
       //resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 201, 160, 106),
-        title: Text(
-          'Chat',
-          style: GoogleFonts.pacifico(
-            fontSize: 30,
-            color: const Color.fromARGB(255, 255, 255, 255),
-          ),
+        title: Row(
+          children: [
+            ((widget.photoUrl != null && widget.photoUrl!.isNotEmpty) ||
+                    (widget.staticImagePath != null &&
+                        widget.staticImagePath!.isNotEmpty))
+                ? ImageAvatar(
+                    photoUrl: widget.photoUrl,
+                    staticImagePath: widget.staticImagePath,
+                    size: 52.0,
+                  )
+                : InitialsAvatar(
+                    firstName: widget.otherName.split(' ')[0],
+                    lastName: widget.otherName.split(' ')[1],
+                    size: 52.0,
+                  ),
+            SizedBox(
+                width: 10), // Add some spacing between the avatar and the title
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child:             Text(
+              '${widget.otherName}',
+              style: GoogleFonts.pacifico(
+                fontSize: 35,
+                color: const Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),),
+
+          ],
         ),
         centerTitle: true,
       ),
-
-      body: Column(
+      body: Stack(
+        children : [
+                    // Background
+          // Container(
+          //   decoration: BoxDecoration(
+          //     image: DecorationImage(
+          //       image: AssetImage('images/chatBackGround.jpg'),
+          //       fit: BoxFit.cover,
+          //     ),
+          //   ),
+          // ),
+    Column(
         children: [
           Expanded(
             child: FutureBuilder(
@@ -108,6 +169,8 @@ class _ChatWidgetState extends State<ChatWidget> {
                     if (otherUserNameSnapshot.hasError) {
                       return Text('Error: ${otherUserNameSnapshot.error}');
                     }
+
+                    otherUserName = otherUserNameSnapshot.data ?? 'Other User';
 
                     return StreamBuilder<QuerySnapshot>(
                       stream: _messagesCollection
@@ -155,12 +218,13 @@ class _ChatWidgetState extends State<ChatWidget> {
                                     ? MainAxisAlignment.end
                                     : MainAxisAlignment.start,
                                 children: [
-                                  Bubble(
+                                  ChatBubble(
                                     message: data['message'],
                                     senderName: senderName,
                                     timestamp: (data['timestamp'] as Timestamp)
                                         .toDate(),
                                     isCurrentUser: isCurrentUser,
+                                    image: image,
                                   ),
                                 ],
                               ),
@@ -184,19 +248,29 @@ class _ChatWidgetState extends State<ChatWidget> {
                     controller: _textEditingController,
                     decoration: InputDecoration(
                       hintText: 'Enter message...',
+                      contentPadding: EdgeInsets.all(8.0),
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0),
+                    ), 
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
+                  ),
                   onPressed: () {
                     // Send message
-                    _sendMessage(currentUserMail!, senderMail!);
+                    _sendMessage(currentUserMail, senderMail);
                   },
+                  child: Icon(Icons.send),
                 ),
               ],
             ),
           ),
+        ],
+      ),
         ],
       ),
     );
@@ -250,6 +324,7 @@ class _ChatWidgetState extends State<ChatWidget> {
         'timestamp': time,
         //'name': recieverName, // "STAMPA ALEXANDRA
         'nameToBeDisplayed': otherUserName,
+        'senderId': currentUserMail,
       });
 
       FirebaseFirestore.instance
@@ -262,27 +337,34 @@ class _ChatWidgetState extends State<ChatWidget> {
             helper, // Take the first 30 characters or the entire message if it's shorter,
         'timestamp': time,
         'nameToBeDisplayed': userName,
+        'senderId': currentUserMail,
       });
     }
 
     String recipientToken =
         await AnyUserDataService().getUserPushToken(senderMail);
 
-    sendPushNotification(recipientToken, userName, currentUserMail, message);
+    if (recipientToken.isNotEmpty) {
+      // Send push notification to the recipient (other user in the chat)
+      // (recipientToken, senderName, currentUserMail, message
+      sendPushNotification(recipientToken, userName, currentUserMail, message);
+    }
   }
 }
 
-class Bubble extends StatelessWidget {
+class ChatBubble extends StatelessWidget {
   final String message;
   final String senderName;
   final DateTime timestamp;
   final bool isCurrentUser;
+  final Image? image;
 
-  const Bubble({
+  const ChatBubble({
     required this.message,
     required this.senderName,
     required this.timestamp,
     required this.isCurrentUser,
+    this.image,
   });
 
   @override
@@ -291,33 +373,130 @@ class Bubble extends StatelessWidget {
       crossAxisAlignment:
           isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        Container(
+        isCurrentUser
+            ? buildCurrentUserBubble(context)
+            : buildOtherUserBubble(context),
+      ],
+    );
+  }
+
+  // Widget buildCurrentUserBubble(BuildContext context) {
+  //   return Center(
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Center(
+  //           child: Text(
+  //             textAlign: TextAlign.center,
+  //             '${DateFormat('dd-MM-yyyy\nHH:mm').format(timestamp)}',
+  //             style: TextStyle(
+  //               color: const Color.fromARGB(255, 0, 0, 0),
+  //               fontSize: 10.0,
+  //             ),
+  //           ),
+  //         ),
+  //         Container(
+  //           decoration: BoxDecoration(
+  //             color: Color.fromARGB(255, 201, 160, 106),
+  //             borderRadius: BorderRadius.circular(8.0),
+  //           ),
+  //           padding: EdgeInsets.all(8.0),
+  //           constraints: BoxConstraints(
+  //             minWidth: MediaQuery.of(context).size.width *
+  //                 0.4, // Minimum width of the bubble
+  //             maxWidth: MediaQuery.of(context).size.width *
+  //                 0.7, // Limiting width to 70% of screen width
+  //           ),
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 'You',
+  //                 style: TextStyle(
+  //                   color: Color.fromARGB(255, 0, 0, 0),
+  //                   fontSize: 12.0,
+  //                 ),
+  //               ),
+  //               SizedBox(height: 6.0),
+  //               Text(
+  //                 message,
+  //                 style: TextStyle(
+  //                   fontSize: 16.0,
+  //                   color: Color.fromARGB(255, 0, 0, 0),
+  //                 ),
+  //                 softWrap: true, // Allow text to wrap
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+    Widget buildCurrentUserBubble(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isCurrentUser ==
+            false) // If the message is not from the current user (i.e. it's from the other user in the chat)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: image == null
+                  ? InitialsAvatar(
+                      firstName: senderName.split(' ')[0],
+                      lastName: senderName.split(' ')[1],
+                      size: 30.0,
+                    )
+                  : ProfileAvatarFromImage(
+                      image: image!,
+                      size: 30.0,
+                    ),
+            ),
+          ),
+        SizedBox(width: 5.0), // Adjust spacing between avatar and message
+
+        Padding(
+          padding: const EdgeInsets.only(top: 15.0),
+          child:         Center(
+          child: Text(
+            textAlign: TextAlign.center,
+            '${DateFormat('dd-MM-yyyy\nHH:mm').format(timestamp)}',
+            style: TextStyle(
+              color: const Color.fromARGB(255, 0, 0, 0),
+              fontSize: 10.0,
+            ),
+          ),
+        ),),
+                        SizedBox(width: 1.0),
+        Bubble(
+              alignment: isCurrentUser ? Alignment.topRight : Alignment.topLeft,
+    nip: isCurrentUser ? BubbleNip.rightBottom : BubbleNip.leftBottom,
+    color: isCurrentUser ? Color.fromARGB(255, 201, 160, 106) : Color.fromARGB(255, 247, 222, 169),
+          child:        Container(
           decoration: BoxDecoration(
             color: isCurrentUser
                 ? Color.fromARGB(255, 201, 160, 106)
                 : Color.fromARGB(255, 247, 222, 169),
             borderRadius: BorderRadius.circular(8.0),
           ),
-          padding: EdgeInsets.all(8.0),
+          // padding: EdgeInsets.all(8.0),
           constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width *
+                0.4, // Minimum width of the bubble
             maxWidth: MediaQuery.of(context).size.width *
                 0.7, // Limiting width to 70% of screen width
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '$senderName  ${DateFormat('dd-MM-yyyy HH:mm').format(timestamp)}',
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 0, 0, 0),
-                  fontSize: 12.0,
-                ),
-              ),
               SizedBox(height: 6.0),
               Text(
                 message,
                 style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 20.0,
                   color: isCurrentUser
                       ? const Color.fromARGB(255, 0, 0, 0)
                       : Colors.black,
@@ -327,27 +506,170 @@ class Bubble extends StatelessWidget {
             ],
           ),
         ),
+        ),
       ],
     );
   }
-}
 
-void showSignUpDialog(BuildContext context, String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Sign In Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close the dialog
-            },
-            child: Text('Cancel'),
+
+// Widget buildOtherUserBubble(BuildContext context) {
+//   return Row(
+//     crossAxisAlignment: CrossAxisAlignment.start,
+//     children: [
+//       SizedBox(width: 8.0), // Adjust spacing between avatar and message
+//       ConstrainedBox(
+//         constraints: BoxConstraints(
+//           maxWidth: MediaQuery.of(context).size.width * 0.7,
+//         ),
+//         child: Expanded(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Row(
+//                 crossAxisAlignment: CrossAxisAlignment.end,
+//                 children: [
+//                   if (isCurrentUser == false)
+//                     Padding(
+//                       padding: const EdgeInsets.only(bottom: 8.0),
+//                       child: image == null
+//                           ? InitialsAvatar(
+//                               firstName: senderName.split(' ')[0],
+//                               lastName: senderName.split(' ')[1],
+//                               size: 40.0,
+//                             )
+//                           : ProfileAvatarFromImage(
+//                               image: image!,
+//                             ),
+//                     ),
+//                   SizedBox(width: 8.0),
+//                   Flexible(
+//                     child: Container(
+//                       decoration: BoxDecoration(
+//                         color: isCurrentUser
+//                             ? Color.fromARGB(255, 201, 160, 106)
+//                             : Color.fromARGB(255, 247, 222, 169),
+//                         borderRadius: BorderRadius.circular(8.0),
+//                       ),
+//                       padding: EdgeInsets.all(8.0),
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           Text(
+//                             '$senderName',
+//                             style: TextStyle(
+//                               color: const Color.fromARGB(255, 0, 0, 0),
+//                               fontSize: 12.0,
+//                             ),
+//                           ),
+//                           SizedBox(height: 6.0),
+//                           Text(
+//                             message,
+//                             style: TextStyle(
+//                               fontSize: 16.0,
+//                               color: isCurrentUser
+//                                   ? const Color.fromARGB(255, 0, 0, 0)
+//                                   : Colors.black,
+//                             ),
+//                             softWrap: true, // Allow text to wrap
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               SizedBox(height: 6.0),
+//               Center(
+//                 child: Text(
+//                   timestamp != null ? '${DateFormat('dd-MM-yyyy\nHH:mm').format(timestamp!)}' : '',
+//                   style: TextStyle(
+//                     color: const Color.fromARGB(255, 0, 0, 0),
+//                     fontSize: 10.0,
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     ],
+//   );
+// }
+
+  Widget buildOtherUserBubble(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isCurrentUser ==
+            false) // If the message is not from the current user (i.e. it's from the other user in the chat)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: image == null
+                  ? InitialsAvatar(
+                      firstName: senderName.split(' ')[0],
+                      lastName: senderName.split(' ')[1],
+                      size: 30.0,
+                    )
+                  : ProfileAvatarFromImage(
+                      image: image!,
+                      size: 30.0,
+                    ),
+            ),
           ),
-        ],
-      );
-    },
-  );
+        SizedBox(width: 5.0), // Adjust spacing between avatar and message
+        Bubble(
+              alignment: isCurrentUser ? Alignment.topRight : Alignment.topLeft,
+    nip: isCurrentUser ? BubbleNip.rightBottom : BubbleNip.leftBottom,
+    color: isCurrentUser ? Color.fromARGB(255, 201, 160, 106) : Color.fromARGB(255, 247, 222, 169),
+          child:        Container(
+          decoration: BoxDecoration(
+            color: isCurrentUser
+                ? Color.fromARGB(255, 201, 160, 106)
+                : Color.fromARGB(255, 247, 222, 169),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          // padding: EdgeInsets.all(8.0),
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width *
+                0.4, // Minimum width of the bubble
+            maxWidth: MediaQuery.of(context).size.width *
+                0.6, // Limiting width to 70% of screen width
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 6.0),
+              Text(
+                message,
+                style: TextStyle(
+                  fontSize: 20.0,
+                  color: isCurrentUser
+                      ? const Color.fromARGB(255, 0, 0, 0)
+                      : Colors.black,
+                ),
+                softWrap: true, // Allow text to wrap
+              ),
+            ],
+          ),
+        ),
+        ),
+        SizedBox(width: 1.0),
+        Padding(
+          padding: const EdgeInsets.only(top: 15.0),
+          child:         Center(
+          child: Text(
+            textAlign: TextAlign.center,
+            '${DateFormat('dd-MM-yyyy\nHH:mm').format(timestamp)}',
+            style: TextStyle(
+              color: const Color.fromARGB(255, 0, 0, 0),
+              fontSize: 10.0,
+            ),
+          ),
+        ),),
+
+      ],
+    );
+  }
 }

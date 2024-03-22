@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'signUp/signUpPage.dart';
-import 'utils/utils.dart';
 import 'homePages/designedHomePage.dart' as designedHomePage;
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'notifications/NotificationHandler.dart' as NotificationHandler;
 import 'notifications/FMessageAPI.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -35,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       routes: {
-        '/singleChat': (context) => ChatWidget(userId: '', otherUserId: ''),
+        '/singleChat': (context) => ChatWidget(userId: '', otherUserId: '', photoUrl: '', staticImagePath: '', otherName: ''),
       },
       title: 'Pet Sitter',
       scaffoldMessengerKey: FirebaseMessagingAPI.scaffoldMessengerKey,
