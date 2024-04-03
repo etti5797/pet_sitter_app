@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class ReviewCard extends StatelessWidget {
   final Map<String, dynamic> review;
@@ -42,8 +43,29 @@ class ReviewCard extends StatelessWidget {
                         fontSize: 18,
                       ),
                     ),
-                    Text(
-                      review['timestamp'].toDate().toString().split(' ')[0],
+                    Row(
+                      children: [
+                        Text(
+                          review['timestamp'].toDate().toString().split(' ')[0],
+                        ),
+                        if (review['rating'] != null) ...[
+                          SizedBox(width: 8),
+                          RatingBar.builder(
+                            initialRating: review['rating'].toDouble(),
+                            minRating: 1,
+                            direction: Axis.horizontal,
+                            allowHalfRating: true,
+                            itemCount: 5,
+                            itemSize: 20,
+                            ignoreGestures: true, // Disable user interaction
+                            itemBuilder: (context, _) => Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                            ),
+                            onRatingUpdate: (value) => null,
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),

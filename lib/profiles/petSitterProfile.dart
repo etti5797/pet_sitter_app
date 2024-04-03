@@ -1,5 +1,4 @@
 import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
@@ -11,6 +10,8 @@ import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:petsitter/in_app_chat/chats_page.dart';
 
 class PetSitterProfile extends StatefulWidget {
   final String petSitterId; // this is email
@@ -50,6 +51,15 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
           } else {
             if (widget.petSitterId != user.email) {
               userFavorites.insert(0, petSitterReference);
+            }
+            else
+            {
+              ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('You cannot add yourself to favorites!'),
+                duration: Duration(seconds: 5),
+              ),
+            );
             }
             if (userFavorites.length > 25) {
               userFavorites.removeLast();
@@ -104,7 +114,11 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                     children: [
                       CircleAvatar(
                         radius: 100,
-                        backgroundImage: AssetImage(_petSitterData!['image']),
+                        backgroundImage: _petSitterData['photoUrl'] != null
+                            ? NetworkImage(_petSitterData['photoUrl'])
+                            : AssetImage(_petSitterData['image'])
+                                as ImageProvider<Object>?,
+                        // AssetImage(_petSitterData!['image']),
                       ),
                       Center(
                         child: Row(
@@ -118,39 +132,100 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                               ),
                             ),
                             SizedBox(width: 6),
-                      IconButton(
-                        icon: FutureBuilder<bool>(
-                          future: UserDataService().isPetSitterFavorite(widget.petSitterId),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Icon(Icons
-                                  .favorite_border);
-                            } else if (snapshot.hasError) {
-                              return Icon(Icons
-                                  .favorite_border);
-                            } else {
-                              final isPetSitterFavorite =
-                                  snapshot.data ?? false;
-                              return Icon(
-                                isPetSitterFavorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: isPetSitterFavorite ? Colors.red : null,
-                              );
-                            }
-                          },
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            isFavorite = !isFavorite;
-                          });
-                          toggleFavoriteStatus();
-                        },
-                      ),
+                            IconButton(
+                              icon: FutureBuilder<bool>(
+                                future: UserDataService()
+                                    .isPetSitterFavorite(widget.petSitterId),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Icon(Icons.favorite_border);
+                                  } else if (snapshot.hasError) {
+                                    return Icon(Icons.favorite_border);
+                                  } else {
+                                    final isPetSitterFavorite =
+                                        snapshot.data ?? false;
+                                    return Icon(
+                                      isPetSitterFavorite
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: isPetSitterFavorite
+                                          ? Colors.red
+                                          : null,
+                                    );
+                                  }
+                                },
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isFavorite = !isFavorite;
+                                });
+                                toggleFavoriteStatus();
+                              },
+                            ),
                           ],
                         ),
                       ),
+                      if (_petSitterData['sumRate'] != null &&
+                          _petSitterData['sumReview'] != null &&
+                          _petSitterData['sumRate'] > 0 &&
+                          _petSitterData['sumReview'] > 0) ...[
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RatingBar.builder(
+                                initialRating: (_petSitterData['sumRate'] /
+                                        _petSitterData['sumReview'])
+                                    .toDouble(),
+                                minRating: 1,
+                                direction: Axis.horizontal,
+                                allowHalfRating: true,
+                                itemCount: 5,
+                                itemSize: 30,
+                                ignoreGestures:
+                                    true, // Disable user interaction
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (value) => null,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '${_petSitterData['sumReview']} reviews',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RatingBar.builder(
+                                initialRating: 0,
+                                direction: Axis.horizontal,
+                                itemCount: 5,
+                                itemSize: 30,
+                                ignoreGestures:
+                                    true, // Disable user interaction
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (value) => null,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '0 reviews',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -168,7 +243,7 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                       ),
                       // Tab Bar View
                       Container(
-                        height: 260, // Set a fixed height
+                        height: 230, // Set a fixed height
                         child: TabBarView(
                           children: [
                             // Information Tab
@@ -177,7 +252,8 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                                 padding: EdgeInsets.all(16),
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.center, // Center the location horizontally
+                                    mainAxisAlignment: MainAxisAlignment
+                                        .center, // Center the location horizontally
                                     children: [
                                       Icon(Icons.location_on),
                                       Text(
@@ -217,15 +293,44 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
                     ],
                   ),
                 ),
-                // Show contact info button at the bottom
                 FloatingActionButton(
-                  onPressed: () {
-                    showContactInfo(context, _petSitterData['email'],
-                        _petSitterData['phoneNumber']);
-                    addToRecentlyViewed();
+                  onPressed: () async {
+                    final currentUser = FirebaseAuth.instance.currentUser;
+                    if (currentUser != null && currentUser.email != widget.petSitterId) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatWidget(
+                            userId: currentUser.email!, // Use the current user's ID
+                            otherUserId: widget.petSitterId,
+                            photoUrl: _petSitterData['photoUrl'],
+                            staticImagePath: _petSitterData['image'],
+                            otherName: _petSitterData['name'],
+                          ),
+                        ),
+                      );
+                      addToRecentlyViewed();
+                    }
+                    else{
+                      ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('You cannot chat with yourself!'),
+                        duration: Duration(seconds: 5),
+                      ),
+                    );
+                    }
                   },
-                  child: Text('Show contact info'),
+                  child: Text('Start chat'),
                 ),
+                // Show contact info button at the bottom
+                // FloatingActionButton(
+                //   onPressed: () {
+                //     showContactInfo(context, _petSitterData['email'],
+                //         _petSitterData['phoneNumber']);
+                //     addToRecentlyViewed();
+                //   },
+                //   child: Text('Show contact info'),
+                // ),
               ],
             ),
           ),
@@ -262,6 +367,8 @@ class _PetSitterProfileState extends State<PetSitterProfile> {
         .collection('petSitters')
         .doc(widget.petSitterId)
         .collection('reviews')
+        .orderBy('timestamp',
+            descending: true) // Order by timestamp in descending order
         .get();
 
     reviews = reviewsSnapshot.docs.map((doc) => doc.data()).toList();

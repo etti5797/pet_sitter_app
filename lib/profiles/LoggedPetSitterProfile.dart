@@ -1,18 +1,14 @@
-import 'dart:developer';
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
-import '../pet_sitters_images_handler/pickImageForPetSitter.dart';
 import 'package:petsitter/services/PetSitterService.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
-import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
-import 'package:petsitter/feedbacks_handler/reviewCard.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:petsitter/generalAppView.dart';
+import '../utils/connectivityUtil.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class LoggedPetSitterProfile extends StatefulWidget {
   final String petSitterId;
@@ -24,10 +20,18 @@ class LoggedPetSitterProfile extends StatefulWidget {
 }
 
 class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
+  bool _isDisposed = false;
+  bool isLoading = false;
   var reviews = [];
   var _petSitterData;
   TextEditingController _firstNameEditingController = TextEditingController();
   TextEditingController _lastNameEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
 
   // @override
   // void initState() {
@@ -63,9 +67,32 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                   padding: EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 100,
-                        backgroundImage: AssetImage(_petSitterData!['image']),
+                      Stack(
+                        alignment: Alignment.bottomCenter,
+                        children: [
+                          isLoading
+                              ? CircularProgressIndicator()
+                              : CircleAvatar(
+                                  radius: 100,
+                                  backgroundImage: _petSitterData['photoUrl'] !=
+                                          null
+                                      ? NetworkImage(_petSitterData['photoUrl'])
+                                      : AssetImage(_petSitterData['image'])
+                                          as ImageProvider<Object>?,
+                                  // AssetImage(_petSitterData!['image']),
+                                ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: Colors.blue,
+                              size: 25.0,
+                            ),
+                            onPressed: () {
+                              _pickAndUploadProfilePicture();
+                              // Add your logic for changing the picture here
+                            },
+                          ),
+                        ],
                       ),
                       Center(
                         child: Row(
@@ -81,7 +108,11 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.edit),
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Colors.blue,
+                                    size: 20.0,
+                                  ),
                                   onPressed: () {
                                     showEditNameDialog(context);
                                   },
@@ -92,6 +123,66 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                           ],
                         ),
                       ),
+                      if (_petSitterData['sumRate'] != null &&
+                          _petSitterData['sumReview'] != null &&
+                          _petSitterData['sumRate'] > 0 &&
+                          _petSitterData['sumReview'] > 0) ...[
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RatingBar.builder(
+                                initialRating: (_petSitterData['sumRate'] /
+                                        _petSitterData['sumReview'])
+                                    .toDouble(),
+                                minRating: 1,
+                                direction: Axis.horizontal,
+                                allowHalfRating: true,
+                                itemCount: 5,
+                                itemSize: 30,
+                                ignoreGestures:
+                                    true, // Disable user interaction
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (value) => null,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '${_petSitterData['sumReview']} reviews',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              RatingBar.builder(
+                                initialRating: 0,
+                                direction: Axis.horizontal,
+                                itemCount: 5,
+                                itemSize: 30,
+                                ignoreGestures:
+                                    true, // Disable user interaction
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                                onRatingUpdate: (value) => null,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                '0 reviews',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -109,7 +200,7 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                       ),
                       // Tab Bar View
                       Container(
-                        height: 200, // Set a fixed height
+                        height: 180, // Set a fixed height
                         child: TabBarView(
                           children: [
                             // Information Tab
@@ -138,17 +229,19 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                               ),
                             ),
                             // Feedbacks Tab
-                            Container(
-                              padding: EdgeInsets.all(16),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: List.generate(
-                                    reviews.length,
-                                    (index) {
-                                      final review = reviews[index];
-                                      return ReviewCard(review: review);
-                                    },
+                            SingleChildScrollView(
+                              child: Container(
+                                padding: EdgeInsets.all(16),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: List.generate(
+                                      reviews.length,
+                                      (index) {
+                                        final review = reviews[index];
+                                        return ReviewCard(review: review);
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
@@ -160,14 +253,14 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                   ),
                 ),
                 // Show contact info button at the bottom
-                FloatingActionButton(
-                  onPressed: () {
-                    showContactInfo(context, _petSitterData['email'],
-                        _petSitterData['phoneNumber']);
-                    addToRecentlyViewed();
-                  },
-                  child: Text('Show contact info'),
-                ),
+                // FloatingActionButton(
+                //   onPressed: () {
+                //     showContactInfo(context, _petSitterData['email'],
+                //         _petSitterData['phoneNumber']);
+                //     addToRecentlyViewed();
+                //   },
+                //   child: Text('Show contact info'),
+                // ),
               ],
             ),
           ),
@@ -215,6 +308,37 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
     return petSitter;
   }
 
+  // Function to pick and upload profile picture
+  Future<void> _pickAndUploadProfilePicture() async {
+    if (_isDisposed) return;
+    setState(() {
+      isLoading = true;
+    });
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (_isDisposed) return;
+    if (mounted && pickedFile == null) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+      String? profilePictureUrl =
+          await UserDataService().uploadProfilePicture(imageFile);
+      if (_isDisposed) return;
+      if (profilePictureUrl != null) {
+        // Update profile picture URL in Firestore
+        await UserDataService().updatePhotoUrl(profilePictureUrl);
+        if (_isDisposed) return;
+        setState(() {
+          _petSitterData['photoUrl'] = profilePictureUrl;
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   void showContactInfo(BuildContext context, String email, String phoneNumber) {
     showDialog(
       context: context,
@@ -242,46 +366,49 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
     );
   }
 
-    void showEditNameDialog(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Edit Name'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _firstNameEditingController,
-                  decoration: InputDecoration(labelText: 'First Name'),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your first name';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _lastNameEditingController,
-                  decoration: InputDecoration(labelText: 'Last Name'),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your last name';
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
+  void showEditNameDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Name'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _firstNameEditingController,
+                decoration: InputDecoration(labelText: 'First Name'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your first name';
+                  }
+                  return null;
                 },
-                child: Text('Cancel'),
               ),
-              TextButton(
-                onPressed: () {
+              TextFormField(
+                controller: _lastNameEditingController,
+                decoration: InputDecoration(labelText: 'Last Name'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your last name';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                bool isConnected =
+                    await ConnectivityUtil.checkConnectivity(context);
+                if (isConnected) {
                   String firstName = _firstNameEditingController.text;
                   String lastName = _lastNameEditingController.text;
 
@@ -296,7 +423,7 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => GeneralAppPage(
-                            initialIndex: 3, // Refresh the profile page
+                            initialIndex: 4, // Refresh the profile page
                           ),
                         ),
                       );
@@ -309,12 +436,13 @@ class _LoggedPetSitterProfileState extends State<LoggedPetSitterProfile> {
                       ),
                     );
                   }
-                },
-                child: Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-}
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

@@ -33,8 +33,10 @@ dependencies:
   google_fonts:
   firebase_core: ^2.25.4
   firebase_storage: 
+  firebase_messaging:
+  flutter_local_notifications:
 
-
+  intl:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -50,12 +52,16 @@ dependencies:
   country_state_city: ^0.1.6
   autocomplete_textfield: ^2.0.1
   country_state_city_picker: ^1.2.8
-
+  connectivity: ^3.0.6
+  image_picker: ^1.0.7
+  overlay_support: ^2.1.0
+  bubble:
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: "^0.13.1"
+  flutter_rating_bar:
 
 flutter_launcher_icons:
   android: true
@@ -92,6 +98,8 @@ flutter:
     - images/dogsCats/
     - images/favorites.jpg
     - images/userProfileImage.jpg
+    - images/chatsPage.jpg
+    - images/chatBackGround.jpg
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

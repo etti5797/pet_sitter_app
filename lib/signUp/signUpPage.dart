@@ -10,6 +10,8 @@ import 'package:csc_picker/csc_picker.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../generalAppView.dart';
 import '../pet_sitters_images_handler/petSitterPetsFound.dart';
+import '../utils/connectivityUtil.dart';
+import '../notifications/FMessageAPI.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -24,7 +26,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool isSpecialUser = false;
   String _firstName = '';
   String _lastName = '';
-  String _phoneNumber = '';
+  //String _phoneNumber = '';
   String? _city = '';
   String? _district = '';
   String? _state = '';
@@ -34,90 +36,101 @@ class _SignUpPageState extends State<SignUpPage> {
   User? user;
 
   Future<void> _signUpWithGoogle() async {
-    setState(() {
-      _isLoading = true; // Show loading indicator
-    });
-    try {
-      // Show circular loading indicator while sign-in is in progress
-      showDialog(
-        context: context,
-        barrierDismissible: false, // Prevent users from dismissing the dialog
-        builder: (BuildContext context) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      );
+    bool isConnected =
+        await ConnectivityUtil.checkConnectivityForGoogleAuth(context);
+    if (isConnected) {
+      setState(() {
+        _isLoading = true; // Show loading indicator
+      });
+      try {
+        // Show circular loading indicator while sign-in is in progress
+        showDialog(
+          context: context,
+          barrierDismissible: false, // Prevent users from dismissing the dialog
+          builder: (BuildContext context) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        );
 
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser!.authentication;
 
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
 
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      user = userCredential.user;
+        final UserCredential userCredential =
+            await _auth.signInWithCredential(credential);
+        user = userCredential.user;
 
-      if (user != null) {
-        // Save user data to Firestore
-        await _firestore.collection('users').doc(user!.email).set({
-          'name': "$_firstName $_lastName",
-          'email': user!.email,
-          'city': _city,
-          'district': _district,
-          'favorites': [],
-        });
-        if (isSpecialUser) {
-          String petType = getPetTypeFromList(_pets);
-          String randomImagePath = getRandomImageUrl(petType);
-          await _firestore.collection('petSitters').doc(user!.email).set({
+        if (user != null) {
+          // Save user data to Firestore
+          await _firestore.collection('users').doc(user!.email).set({
             'name': "$_firstName $_lastName",
             'email': user!.email,
             'city': _city,
             'district': _district,
-            'phoneNumber': _phoneNumber,
-            'pets': _pets,
-            'gender': _gender,
-            'image': randomImagePath,
+            'favorites': [],
+            'image': 'images/userProfileImage.jpg',
           });
-        }
-
-        // Save city-district mapping to Firestore
-        final cityDistrictMappingRef =
-            _firestore.collection('city_district_mapping').doc(_city);
-        final cityDistrictMappingSnapshot = await cityDistrictMappingRef.get();
-
-        if (!cityDistrictMappingSnapshot.exists) {
-          await cityDistrictMappingRef.set({
-            'city': _city,
-            'district': _district,
+          if (isSpecialUser) {
+            String petType = getPetTypeFromList(_pets);
+            String randomImagePath = getRandomImageUrl(petType);
+            await _firestore.collection('petSitters').doc(user!.email).set({
+              'name': "$_firstName $_lastName",
+              'email': user!.email,
+              'city': _city,
+              'district': _district,
+              //'phoneNumber': _phoneNumber,
+              'pets': _pets,
+              'gender': _gender,
+              'image': randomImagePath,
+            });
+            await _firestore.collection('users').doc(user!.email).set({
+              'image': randomImagePath,
           });
-        }
+          }
 
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => GeneralAppPage()));
-      }
-    } catch (e) {
-      _googleSignIn.signOut();
-      // Handle sign-up with Google error
-      print('Sign-up with Google error: $e');
-      if (user != null) {
-        // Remove the data that was saved to the database
-        await _firestore.collection('users').doc(user!.email).delete();
-        if (isSpecialUser) {
-          await _firestore.collection('petSitters').doc(user!.email).delete();
+          // Save city-district mapping to Firestore
+          final cityDistrictMappingRef =
+              _firestore.collection('city_district_mapping').doc(_city);
+          final cityDistrictMappingSnapshot =
+              await cityDistrictMappingRef.get();
+
+          if (!cityDistrictMappingSnapshot.exists) {
+            await cityDistrictMappingRef.set({
+              'city': _city,
+              'district': _district,
+            });
+          }
+          FirebaseMessagingAPI().initNotifications(context);
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => GeneralAppPage()));
         }
+      } catch (e) {
+        _googleSignIn.signOut();
+        // Handle sign-up with Google error
+        print('Sign-up with Google error: $e');
+        if (user != null) {
+          // Remove the data that was saved to the database
+          await _firestore.collection('users').doc(user!.email).delete();
+          if (isSpecialUser) {
+            await _firestore.collection('petSitters').doc(user!.email).delete();
+          }
+        }
+        Navigator.pop(context); // Dismiss loading indicator dialog
+        showSignUpDialog(context, 'Got error while signing up with Google');
+      } finally {
+        setState(() {
+          _isLoading = false; // Hide loading indicator
+        });
       }
-      Navigator.pop(context); // Dismiss loading indicator dialog
-      showSignUpDialog(context, 'Got error while signing up with Google');
-    } finally {
-      setState(() {
-        _isLoading = false; // Hide loading indicator
-      });
+    } else {
+      showSignUpDialog(context, 'No Internet Connection, Unable to continue with Google, Please try again later');
     }
   }
 
@@ -298,7 +311,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     _city = value;
                   });
                 },
-                
               ),
               SizedBox(height: 16.0),
               Row(
@@ -319,15 +331,37 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  if ((_state == null || _state!.isEmpty || _state == "*Country") && (_city == null || _city!.isEmpty || _city == "*City") && (_district == null || _district!.isEmpty || _district == "*District")) {
-                    showMissingFieldDialog(context, 'Missing Location Information', 'Please fill country, district, and city fields.');
-                  } else if ((_city == null || _city!.isEmpty || _city == "*City") && (_district == null || _district!.isEmpty || _district == "*District")) {
-                    showMissingFieldDialog(context, 'Missing Location Information', 'Please fill in the district and the city field.');
-                  } else if (_city == null || _city!.isEmpty || _city == "*City"){
-                    showMissingFieldDialog(context, 'Missing Location Information', 'Please fill in the city field.');
-                  }
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    if ((_state == null ||
+                            _state!.isEmpty ||
+                            _state == "*Country") &&
+                        (_city == null || _city!.isEmpty || _city == "*City") &&
+                        (_district == null ||
+                            _district!.isEmpty ||
+                            _district == "*District")) {
+                      showMissingFieldDialog(
+                          context,
+                          'Missing Location Information',
+                          'Please fill country, district, and city fields.');
+                    } else if ((_city == null ||
+                            _city!.isEmpty ||
+                            _city == "*City") &&
+                        (_district == null ||
+                            _district!.isEmpty ||
+                            _district == "*District")) {
+                      showMissingFieldDialog(
+                          context,
+                          'Missing Location Information',
+                          'Please fill in the district and the city field.');
+                    } else if (_city == null ||
+                        _city!.isEmpty ||
+                        _city == "*City") {
+                      showMissingFieldDialog(
+                          context,
+                          'Missing Location Information',
+                          'Please fill in the city field.');
+                    }
                     if (isSpecialUser) {
                       // Check if the additional questions are answered
                       bool _additionalQuestionsAnswered() {
@@ -337,27 +371,33 @@ class _SignUpPageState extends State<SignUpPage> {
                       }
 
                       if (_additionalQuestionsAnswered()) {
-                        if(_state == null || _state!.isEmpty || _city == null || _city!.isEmpty || _district == null || _district!.isEmpty)
-                      {
-                        //allready have error msg
-                      }
-                      else
-                      {_signUpWithGoogle();}
-
+                        if (_state == null ||
+                            _state!.isEmpty ||
+                            _city == null ||
+                            _city!.isEmpty ||
+                            _district == null ||
+                            _district!.isEmpty) {
+                          //allready have error msg
+                        } else {
+                          _signUpWithGoogle();
+                        }
                       } else {
                         // Show an error message or prompt the user to answer the questions
                       }
                     } else {
-                      if(_state == null || _state!.isEmpty || _city == null || _city!.isEmpty || _district == null || _district!.isEmpty || _state == "*Country" || _city == "*City" || _district == "*District")
-                      {
+                      if (_state == null ||
+                          _state!.isEmpty ||
+                          _city == null ||
+                          _city!.isEmpty ||
+                          _district == null ||
+                          _district!.isEmpty ||
+                          _state == "*Country" ||
+                          _city == "*City" ||
+                          _district == "*District") {
                         //allready have error msg
-                        
-                      }
-                      else
-                      {
+                      } else {
                         _signUpWithGoogle();
-                      } 
-                      
+                      }
                     }
                   }
                 },
@@ -372,7 +412,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _showAdditionalQuestionsPopup() {
     TextEditingController genderController = TextEditingController();
-    TextEditingController phoneNumberController = TextEditingController();
+    //TextEditingController phoneNumberController = TextEditingController();
     List<String> selectedPets = [];
 
     final _specialFormKey = GlobalKey<FormState>();
@@ -380,11 +420,13 @@ class _SignUpPageState extends State<SignUpPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return SingleChildScrollView( // Wrap with SingleChildScrollView
+        return SingleChildScrollView(
+          // Wrap with SingleChildScrollView
           child: AlertDialog(
             title: Text('Additional needed information'),
             content: Form(
-              key: _specialFormKey, // Assigning a new GlobalKey for the dialog form
+              key:
+                  _specialFormKey, // Assigning a new GlobalKey for the dialog form
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -411,22 +453,22 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   SizedBox(height: 8.0),
                   // Question 2: Phone Number
-                  TextFormField(
-                    controller: phoneNumberController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter Phone Number';
-                      } else if (!_isValidIsraeliMobilePhoneNumber(value)) {
-                        return 'Invalid Israeli mobile phone number';
-                      }
-                      _phoneNumber = value;
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 8.0),
+                  // TextFormField(
+                  //   controller: phoneNumberController,
+                  //   decoration: InputDecoration(
+                  //     labelText: 'Phone Number',
+                  //   ),
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please enter Phone Number';
+                  //     } else if (!_isValidIsraeliMobilePhoneNumber(value)) {
+                  //       return 'Invalid Israeli mobile phone number';
+                  //     }
+                  //     _phoneNumber = value;
+                  //     return null;
+                  //   },
+                  // ),
+                  //SizedBox(height: 8.0),
                   MultiSelectDialogField(
                     items: ['Dogs', 'Cats']
                         .map((pet) => MultiSelectItem<String>(pet, pet))
@@ -476,31 +518,32 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  void showMissingFieldDialog(BuildContext context, String title, String content) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
+  void showMissingFieldDialog(
+      BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
   // TODO: need to verify all combinations of choosing check box and cancelling it// Cancel
   // global variables need to be cleaned after cancelling the check box and filled after submission
 
-  bool _isValidIsraeliMobilePhoneNumber(String phoneNumber) {
-    // Regular expression to match Israeli mobile phone number format
-    RegExp regex = RegExp(r'^05[0-9]{8}$');
-    return regex.hasMatch(phoneNumber);
-  }
+  // bool _isValidIsraeliMobilePhoneNumber(String phoneNumber) {
+  //   // Regular expression to match Israeli mobile phone number format
+  //   RegExp regex = RegExp(r'^05[0-9]{8}$');
+  //   return regex.hasMatch(phoneNumber);
+  // }
 }

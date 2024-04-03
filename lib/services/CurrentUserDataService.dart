@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class UserDataService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -7,6 +10,7 @@ class UserDataService {
   String userEmail = ''; //in order not to get the email from the database every time
   String userName = ''; //in order not to get the name from the database every time
   String userImage = '';
+  String userPhotoUrl = '';
 
     //every cached field should be cleared when the user logs out
     Future<void> signOut() async {
@@ -14,6 +18,18 @@ class UserDataService {
       userEmail = '';
       userName = '';
       userImage = '';
+      userPhotoUrl = '';
+      cleanPushToken();
+    }
+
+    Future<void> cleanPushToken() async {
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'pushToken': '',
+        });
+      }
     }
 
     Future<String> getUserName() async {
@@ -163,39 +179,6 @@ class UserDataService {
   }
 
 
-// Future<void> addRecentlyViewedDocument(DocumentReference documentReference) async {
-//   try {
-//     User? currentUser = _auth.currentUser;
-
-//     if (currentUser != null) {
-//       DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-//           await _firestore.collection('users').doc(currentUser.email).get();
-
-//       if (userSnapshot.exists) {
-//         List<DocumentReference> recentlyViewedReferences = List<DocumentReference>.from(
-//             userSnapshot.data()?['recentlyViewed'] ?? <DocumentReference>[]);
-        
-//         // Remove any existing reference with the same email
-//         recentlyViewedReferences.removeWhere((ref) => ref.id == documentReference.id);
-        
-//         // Insert the new document reference at the beginning of the list
-//         recentlyViewedReferences.insert(0, documentReference);
-
-//         // Limit the list to a certain number of items, if desired
-//         if (recentlyViewedReferences.length > 10) {
-//           recentlyViewedReferences.removeLast();
-//         }
-
-//         await _firestore.collection('users').doc(currentUser.email).update({
-//           'recentlyViewed': recentlyViewedReferences,
-//         });
-//       }
-//     }
-//   } catch (e) {
-//     print('Error adding recently viewed document: $e');
-//   }
-// }
-
 Future<void> addRecentlyViewedDocument(DocumentReference documentReference) async {
   try {
     User? currentUser = _auth.currentUser;
@@ -241,61 +224,6 @@ Future<void> addRecentlyViewedDocument(DocumentReference documentReference) asyn
     print('Error adding recently viewed document: $e');}
 }
 
-// handle favorites:
-
-// Future<List<DocumentSnapshot<Map<String, dynamic>>>> getFavoriteDocuments() async {
-//     try {
-//       User? currentUser = _auth.currentUser;
-
-//       if (currentUser != null) {
-//         DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-//             await _firestore.collection('users').doc(currentUser.email).get();
-
-//         if (userSnapshot.exists) {
-//           List<DocumentReference> favoriteReferences = List<DocumentReference>.from(
-//               userSnapshot.data()?['favorites'] ?? <DocumentReference>[]);
-
-//           List<DocumentSnapshot<Map<String, dynamic>>> favoriteDocuments = [];
-
-//           for (DocumentReference reference in favoriteReferences) {
-//             DocumentSnapshot<Map<String, dynamic>> documentSnapshot = await reference.get() as DocumentSnapshot<Map<String, dynamic>>;
-//             favoriteDocuments.add(documentSnapshot);
-//           }
-
-//           return favoriteDocuments;
-//         }
-//       }
-//     } catch (e) {
-//       print('Error fetching favorite documents: $e');
-//     }
-
-//     return [];
-//   }
-
-//   Future<void> removeFavoriteDocument(DocumentReference documentReference) async {
-//     try {
-//       User? currentUser = _auth.currentUser;
-
-//       if (currentUser != null) {
-//         DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-//             await _firestore.collection('users').doc(currentUser.email).get();
-
-//         if (userSnapshot.exists) {
-//           List<DocumentReference> favoriteReferences = List<DocumentReference>.from(
-//               userSnapshot.data()?['favorites'] ?? <DocumentReference>[]);
-
-//           // Remove the document reference from favorites
-//           favoriteReferences.remove(documentReference);
-
-//           await _firestore.collection('users').doc(currentUser.email).update({
-//             'favorites': favoriteReferences,
-//           });
-//         }
-//       }
-//     } catch (e) {
-//       print('Error removing favorite document: $e');
-//     }
-//   }
 
 Future<void> addFavoriteDocuments(DocumentReference documentReference) async {
   try {
@@ -441,5 +369,87 @@ Future<void> addFavoriteDocuments(DocumentReference documentReference) async {
     }
   }
 
+  Future<String?> uploadProfilePicture(File imageFile) async {
+    // Upload profile picture to Firebase Storage
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    String filePath = 'profile_pictures/$userId.jpg';
+    Reference storageRef = FirebaseStorage.instance.ref().child(filePath);
+    UploadTask uploadTask = storageRef.putFile(imageFile);
+    TaskSnapshot snapshot = await uploadTask.whenComplete(() => null);
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
+  }
+  
+  //   Future<void> _pickAndUploadProfilePicture() async {
+  //   // Allow user to pick a profile picture and upload it
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.getImage(source: ImageSource.gallery);
+  //   if (pickedFile != null) {
+  //     File imageFile = File(pickedFile.path);
+  //     String? profilePictureUrl = await _uploadProfilePicture(imageFile);
+  //     if (profilePictureUrl != null) {
+  //       setState(() {
+  //         _userProfile!.profilePictureUrl = profilePictureUrl;
+  //       });
+  //       // Update profile picture URL in Firebase Authentication
+  //       await FirebaseAuth.instance.currentUser!.updatePhotoURL(profilePictureUrl);
+  //     }
+  //   }
+  // }
 
+  Future<void> updatePhotoUrl(String photoUrl) async {
+    try {
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        // Update the photo URL in Firestore
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'photoUrl': photoUrl,
+        });
+        if(await isPetSitter()){
+        await _firestore.collection('petSitters').doc(currentUser.email).update({
+          'photoUrl': photoUrl,
+        });
+        }
+        userPhotoUrl = photoUrl;
+      }
+    } catch (e) {
+      print('Error updating photo URL: $e');
+    }
+  }
+  
+  Future<String> getUserPhotoUrl() async {
+    try {
+      if(userPhotoUrl.isNotEmpty){
+        return userPhotoUrl;
+      }
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        DocumentSnapshot userData = await _firestore.collection('users').doc(currentUser.email).get();
+        if (userData.exists) {
+          return userData.get('photoUrl');
+        }
+      }
+      return '';
+    } catch (e) {
+      print('Error getting photo URL: $e');
+      return '';
+    }
+  }
+  
+  Future<void> pushTokenToFirestore(String token) async {
+    try {
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'pushToken': token,
+        });
+      }
+    } catch (e) {
+      print('Error updating push token: $e');
+    }
+  }
+  
 }

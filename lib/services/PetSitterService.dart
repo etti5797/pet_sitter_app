@@ -1,5 +1,65 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
+import 'dart:math';
+
+class FunNameGenerator {
+  static final List<String> adjectives = [
+    "Happy",
+    "Silly",
+    "Cheerful",
+    "Whimsical",
+    "Jolly",
+    "Bubbly",
+    "Lively",
+    "Giggly",
+    "Playful",
+    "Joyful",
+    "Charming",
+    "Zany",
+    "Quirky",
+    "Energetic",
+    "Carefree",
+    "Sprightly",
+    "Merry",
+    "Bouncy",
+    "Peppy",
+    "Vivacious",
+  ];
+
+  static final List<String> nouns = [
+    "Puppy",
+    "Kitty",
+    "Penguin",
+    "Panda",
+    "Giraffe",
+    "Tiger",
+    "Elephant",
+    "Monkey",
+    "Dolphin",
+    "Koala",
+    "Llama",
+    "Owl",
+    "Bunny",
+    "Fox",
+    "Unicorn",
+    "Dragon",
+    "Mermaid",
+    "Fairy",
+    "Narwhal",
+    "Robot",
+  ];
+
+  static String generateFunName() {
+    final Random random = Random();
+    final String adjective = adjectives[random.nextInt(adjectives.length)];
+    final String noun = nouns[random.nextInt(nouns.length)];
+    return '$adjective $noun';
+  }
+}
+
+
 
 class PetSitterService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -43,10 +103,23 @@ class PetSitterService {
     }
   }
 
-void addReview(String petSitterId, String reviewText) async {
+void addReview(String petSitterId, String reviewText, bool anonymous, double rating) async {
    String currentUserName = await UserDataService().getUserName();
   //petSitterId is his
-  await _firestore
+  if (anonymous == true) {
+    String funName = FunNameGenerator.generateFunName() + ' (Anonymous)';
+    await _firestore
+    .collection('petSitters')
+    .doc(petSitterId)
+    .collection('reviews')
+    .add({
+      'reviewerName': funName,
+      'reviewText': reviewText,
+      'timestamp': Timestamp.now(),
+      'rating': rating,
+    });
+  } else {
+    await _firestore
     .collection('petSitters')
     .doc(petSitterId)
     .collection('reviews')
@@ -54,7 +127,15 @@ void addReview(String petSitterId, String reviewText) async {
       'reviewerName': currentUserName,
       'reviewText': reviewText,
       'timestamp': Timestamp.now(),
+      'rating': rating,
     });
+  }
+  // Update sumRate and sumReview fields in petSitters collection
+  await _firestore.collection('petSitters').doc(petSitterId).update({
+    'sumRate': FieldValue.increment(rating),
+    'sumReview': FieldValue.increment(1),
+  });
+
 }
 
   Future<List<Map<String, dynamic>>> getReviews(String petSitterId) async {
