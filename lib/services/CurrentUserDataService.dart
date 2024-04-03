@@ -18,6 +18,18 @@ class UserDataService {
       userEmail = '';
       userName = '';
       userImage = '';
+      userPhotoUrl = '';
+      cleanPushToken();
+    }
+
+    Future<void> cleanPushToken() async {
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'pushToken': '',
+        });
+      }
     }
 
     Future<String> getUserName() async {
@@ -423,6 +435,20 @@ Future<void> addFavoriteDocuments(DocumentReference documentReference) async {
     } catch (e) {
       print('Error getting photo URL: $e');
       return '';
+    }
+  }
+  
+  Future<void> pushTokenToFirestore(String token) async {
+    try {
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        await _firestore.collection('users').doc(currentUser.email).update({
+          'pushToken': token,
+        });
+      }
+    } catch (e) {
+      print('Error updating push token: $e');
     }
   }
   
