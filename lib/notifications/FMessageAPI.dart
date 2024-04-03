@@ -50,6 +50,7 @@ class FirebaseMessagingAPI {
           navigatorKey.currentState?.pushNamed('/singleChat', arguments: {
             'currentUserMail': currentUserMail,
             'senderMail': senderMail
+            //TODO: Add other arguments (photoUrl, staticImagePath, otherName)
           });
           print('Tapped on new message indicator');
         },
