@@ -307,7 +307,7 @@ class _ChatWidgetState extends State<ChatWidget> {
       });
 
       String helper;
-      if (message.length > 80) {
+      if (message.length > 20) {
         helper = ' ...';
       } else {
         helper = "";
@@ -319,7 +319,7 @@ class _ChatWidgetState extends State<ChatWidget> {
           .set({
         'with': senderMail,
         'userId': currentUserMail,
-        'lastMessage': message.substring(0, min(80, message.length)) +
+        'lastMessage': message.substring(0, min(20, message.length)) +
             helper, // Take the first 30 characters or the entire message if it's shorter,
         'timestamp': time,
         //'name': recieverName, // "STAMPA ALEXANDRA
@@ -333,7 +333,7 @@ class _ChatWidgetState extends State<ChatWidget> {
           .set({
         'with': currentUserMail,
         'userId': senderMail,
-        'lastMessage': message.substring(0, min(80, message.length)) +
+        'lastMessage': message.substring(0, min(20, message.length)) +
             helper, // Take the first 30 characters or the entire message if it's shorter,
         'timestamp': time,
         'nameToBeDisplayed': userName,
