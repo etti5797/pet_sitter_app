@@ -8,8 +8,6 @@ import 'package:petsitter/services/AnyUserDataService.dart';
 import 'InitialsAvatar.dart';
 import 'ImageAvatar.dart';
 
-import 'package:flutter/material.dart';
-
 String userEmail = FirebaseAuth.instance.currentUser?.email ?? '';
 
 class ChatsListPage extends StatefulWidget {

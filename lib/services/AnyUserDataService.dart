@@ -1,8 +1,4 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:petsitter/services/CurrentUserDataService.dart';
-import 'dart:math';
 
 class AnyUserDataService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

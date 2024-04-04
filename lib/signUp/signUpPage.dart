@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:petsitter/pet_sitters_images_handler/pickImageForPetSitter.dart';
@@ -411,8 +410,6 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _showAdditionalQuestionsPopup() {
-    TextEditingController genderController = TextEditingController();
-    //TextEditingController phoneNumberController = TextEditingController();
     List<String> selectedPets = [];
 
     final _specialFormKey = GlobalKey<FormState>();
@@ -538,12 +535,4 @@ class _SignUpPageState extends State<SignUpPage> {
       },
     );
   }
-  // TODO: need to verify all combinations of choosing check box and cancelling it// Cancel
-  // global variables need to be cleaned after cancelling the check box and filled after submission
-
-  // bool _isValidIsraeliMobilePhoneNumber(String phoneNumber) {
-  //   // Regular expression to match Israeli mobile phone number format
-  //   RegExp regex = RegExp(r'^05[0-9]{8}$');
-  //   return regex.hasMatch(phoneNumber);
-  // }
 }

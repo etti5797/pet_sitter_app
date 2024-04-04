@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
-import 'package:petsitter/utils/utils.dart' as utils;
 import 'package:petsitter/services/PetSitterService.dart' as petSitterService;
 import 'package:petsitter/profiles/LoggedPetSitterProfile.dart';
 import 'package:petsitter/generalAppView.dart';

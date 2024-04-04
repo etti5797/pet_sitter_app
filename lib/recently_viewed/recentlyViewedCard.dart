@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
-import 'package:petsitter/pet_sitters_images_handler/pickImageForPetSitter.dart';
 import 'package:petsitter/profiles/petSitterProfile.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'package:petsitter/services/PetSitterService.dart';

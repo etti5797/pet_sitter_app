@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import '../notifications/FMessageAPI.dart';
 import 'TemporaryMessageOverlay.dart';
-
 
 class TopSnackBar {
   static void show(BuildContext context, String message, Duration duration) {
-    final overlay = Overlay.of(context)!;
+    final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: MediaQuery.of(context).padding.top + kToolbarHeight,

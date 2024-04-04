@@ -8,8 +8,7 @@ import '../utils/connectivityUtil.dart';
 import '../notifications/FMessageAPI.dart';
 
 class GoogleSignInHandler {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-
+  
   Future<bool> handleGoogleSignIn(BuildContext context) async {
     bool isConnected =
         await ConnectivityUtil.checkConnectivityForGoogleAuth(context);

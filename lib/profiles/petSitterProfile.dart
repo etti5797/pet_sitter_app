@@ -1,14 +1,9 @@
-import 'dart:ffi';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:petsitter/feedbacks_handler/reviewCard.dart';
-import '../pet_sitters_images_handler/pickImageForPetSitter.dart';
 import 'package:petsitter/services/PetSitterService.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
-import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
-import 'package:petsitter/feedbacks_handler/reviewCard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:petsitter/in_app_chat/chats_page.dart';

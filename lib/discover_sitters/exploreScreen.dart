@@ -8,8 +8,6 @@ import 'package:country_state_city/country_state_city.dart'
     as country_state_city;
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'package:petsitter/pet_sitters_images_handler/petSitterPetsFound.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../utils/connectivityUtil.dart';
 
 class ExploreScreen extends StatefulWidget {
   @override

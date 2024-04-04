@@ -2,14 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:petsitter/in_app_chat/chatListPage.dart';
 import 'package:petsitter/main.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
-import '../in_app_chat/chatListPage.dart';
-import 'TopSnackBar.dart';
 import 'NewMessageIndicator.dart';
-import 'NewMessageBanner.dart';
-import '../in_app_chat/chats_page.dart';
 
 Future<void> handleBackgroundMessage(RemoteMessage message) async {
   print("Handling a background message: ${message.data}");
@@ -35,9 +30,6 @@ class FirebaseMessagingAPI {
     print("Handling a message: ${message.data}");
 
     if (FirebaseMessagingAPI.scaffoldMessengerKey.currentState != null) {
-      final scaffoldMessenger =
-          FirebaseMessagingAPI.scaffoldMessengerKey.currentState;
-
       String senderName = message.data['senderName'] ?? 'senderName';
       String senderMail = message.data['senderMail'] ?? 'senderMail';
 

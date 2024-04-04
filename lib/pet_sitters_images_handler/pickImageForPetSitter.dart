@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-
 List<String> catImages = [
   'images/cats/cat1.jpeg',
   'images/cats/cat2.jpg',
