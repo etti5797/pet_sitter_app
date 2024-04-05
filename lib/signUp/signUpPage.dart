@@ -89,7 +89,7 @@ class _SignUpPageState extends State<SignUpPage> {
               'gender': _gender,
               'image': randomImagePath,
             });
-            await _firestore.collection('users').doc(user!.email).set({
+            await _firestore.collection('users').doc(user!.email).update({
               'image': randomImagePath,
           });
           }
