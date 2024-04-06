@@ -90,152 +90,154 @@ class _RecentPetSitterCardState extends State<RecentPetSitterCard> {
   }
 
 void showFeedbackDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      final TextEditingController feedbackController = TextEditingController();
-      double rating = 0;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final TextEditingController feedbackController = TextEditingController();
+        double rating = 0;
 
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Center(
-              child: Text(
-                'Leave a review',
-                style: TextStyle(fontWeight: FontWeight.bold),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Center(
+                child: Text(
+                  'Leave a review',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      'Rating*',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          'Rating*',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Center(
-                  child: RatingBar.builder(
-                    initialRating: 0,
-                    minRating: 1,
-                    direction: Axis.horizontal,
-                    allowHalfRating: true,
-                    itemCount: 5,
-                    itemSize: 30, // Adjust the size as per your requirement
-                    itemPadding: EdgeInsets.symmetric(horizontal: 4.0), // Adjust padding
-                    itemBuilder: (context, _) => Icon(
-                      Icons.star,
-                      color: Colors.amber,
-                    ),
-                    onRatingUpdate: (newRating) {
-                      setState(() {
-                        rating = newRating;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    'Feedback*',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: TextField(
-                    controller: feedbackController,
-                    maxLength: 100,
-                    maxLines: 3, // Enable multiline input
-                    decoration: InputDecoration(
-                      hintText: 'Enter your feedback',
-                      border: InputBorder.none, // Remove the default border
-                      contentPadding: EdgeInsets.all(8), // Adjust padding
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 0.0), // Adjust the left padding as per your requirement
-                  child: Row(
-                    children: [
-                      Checkbox(
-                        value: isAnonymous,
-                        onChanged: (value) {
+                    Center(
+                      child: RatingBar.builder(
+                        initialRating: 0,
+                        minRating: 1,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemSize: 30,
+                        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                        itemBuilder: (context, _) => Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                        ),
+                        onRatingUpdate: (newRating) {
                           setState(() {
-                            isAnonymous = value!;
+                            rating = newRating;
                           });
                         },
                       ),
-                      Text('Anonymous'),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        'Feedback*',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: TextField(
+                        controller: feedbackController,
+                        maxLength: 100,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Enter your feedback',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(8),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 0.0),
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            value: isAnonymous,
+                            onChanged: (value) {
+                              setState(() {
+                                isAnonymous = value!;
+                              });
+                            },
+                          ),
+                          Text('Anonymous'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () async {
-                  // Handle submit feedback here
-                  bool isConnected = await ConnectivityUtil.checkConnectivity(context);
-                  if (isConnected) {
-                    String currentUserEmail = await UserDataService().getUserEmail();
-                    String feedback = feedbackController.text.trim(); // Trim whitespace
-                    if (feedback.isNotEmpty && rating > 0) {
-                      // Check if feedback is not empty
-                      PetSitterService().addReview(email, feedback, isAnonymous, rating);
-                      isAnonymous = false;
-                      setState(() {
-                        feedbackController.clear();
-                      });
-                      Navigator.of(context).pop();
-                    } else {
-                      if(rating == 0)
-                      {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Rating cannot be empty!"),
-                          ),
-                        );
-                      }
-                      else
-                      {
-                        // Show a message indicating that feedback cannot be empty
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Feedback cannot be empty! Enter some text."),
-                          ),
-                        );
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () async {
+                    // Handle submit feedback here
+                    bool isConnected = await ConnectivityUtil.checkConnectivity(context);
+                    if (isConnected) {
+                      String currentUserEmail = await UserDataService().getUserEmail();
+                      String feedback = feedbackController.text.trim(); // Trim whitespace
+                      if (feedback.isNotEmpty && rating > 0) {
+                        // Check if feedback is not empty
+                        PetSitterService().addReview(email, feedback, isAnonymous, rating);
+                        isAnonymous = false;
+                        setState(() {
+                          feedbackController.clear();
+                        });
+                        Navigator.of(context).pop();
+                      } else {
+                        if(rating == 0)
+                        {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Rating cannot be empty!"),
+                            ),
+                          );
+                        }
+                        else
+                        {
+                          // Show a message indicating that feedback cannot be empty
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Feedback cannot be empty! Enter some text."),
+                            ),
+                          );
+                        }
                       }
                     }
-                  }
-                },
-                child: Text('Submit'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle cancel feedback here
-                  isAnonymous = false;
-                  setState(() {
-                    feedbackController.clear();
-                  });
-                  Navigator.of(context).pop();
-                },
-                child: Text('Cancel'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
+                  },
+                  child: Text('Submit'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Handle cancel feedback here
+                    isAnonymous = false;
+                    setState(() {
+                      feedbackController.clear();
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+  
 }
