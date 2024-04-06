@@ -18,3 +18,9 @@
 * [ ] Rate and give feedback about the pet sitter that provided a service.
 * [ ] See recent pet sitters you were interested in. 
 * [ ] Signup and login with Google.
+
+## Automatic tests
+
+* [] 3 Unit tests of Firestore
+* [] 1 Widget test
+: https://sites.google.com/view/petsittertests/home?authuser=1
