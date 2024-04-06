@@ -133,15 +133,19 @@ class _ChatWidgetState extends State<ChatWidget> {
                   ),
             SizedBox(
                 width: 10), // Add some spacing between the avatar and the title
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10.0),
-              child:             Text(
-              '${otherUserName}',
-              style: GoogleFonts.pacifico(
-                fontSize: 35,
-                color: const Color.fromARGB(255, 255, 255, 255),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Text(
+                  '${otherUserName}',
+                  style: GoogleFonts.pacifico(
+                    fontSize: 35,
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),),
+            ),
 
           ],
         ),
