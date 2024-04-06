@@ -19,8 +19,8 @@
 * [ ] See recent pet sitters you were interested in. 
 * [ ] Signup and login with Google.
 
-## Automatic tests
+## Automatic tests 
+https://sites.google.com/view/petsittertests/home?authuser=1
 
-* [] 3 Unit tests of Firestore
-* [] 1 Widget test
-: https://sites.google.com/view/petsittertests/home?authuser=1
+* [ ] 3 Unit tests of Firestore
+* [ ] 1 Widget test
