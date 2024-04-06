@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:petsitter/in_app_chat/chats_page.dart';
 import 'package:petsitter/main.dart';
 import 'package:petsitter/services/CurrentUserDataService.dart';
 import 'NewMessageIndicator.dart';
@@ -29,9 +30,13 @@ class FirebaseMessagingAPI {
 
     print("Handling a message: ${message.data}");
 
-    if (FirebaseMessagingAPI.scaffoldMessengerKey.currentState != null) {
-      String senderName = message.data['senderName'] ?? 'senderName';
+    
+    if (FirebaseMessagingAPI.scaffoldMessengerKey.currentState != null && 
+          isSpecialWidgetActive == false) {
+      String senderName = message.data['senderName'] ?? 'sender Name';
       String senderMail = message.data['senderMail'] ?? 'senderMail';
+      String staticPhoto = message.data['staticPhoto'] ?? '';
+      String photoUrl = message.data['photoUrl'] ?? '';
 
       final indicator = NewMessageIndicator(
         userName: senderName,
@@ -41,8 +46,10 @@ class FirebaseMessagingAPI {
               ?.hideCurrentSnackBar();
           navigatorKey.currentState?.pushNamed('/singleChat', arguments: {
             'currentUserMail': currentUserMail,
-            'senderMail': senderMail
-            //TODO: Add other arguments (photoUrl, staticImagePath, otherName)
+            'senderMail': senderMail,
+            'senderName': senderName,
+            'photoUrl': photoUrl,
+            'staticImagePath': staticPhoto,
           });
           print('Tapped on new message indicator');
         },
@@ -102,10 +109,17 @@ class FirebaseMessagingAPI {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print("Message opened app: ${message.data}");
       String senderMail = message.data['senderMail'] ?? 'senderMail';
+      String senderName = message.data['senderName'] ?? 'sender Name';
+      String staticPhoto = message.data['staticPhoto'] ?? '';
+      String photoUrl = message.data['photoUrl'] ?? '';
       // Handle message when app is opened from a terminated state
+
       navigatorKey.currentState?.pushNamed('/singleChat', arguments: {
         'currentUserMail': currentUserMail,
-        'senderMail': senderMail
+        'senderMail': senderMail,
+        'senderName': senderName,
+        'photoUrl': photoUrl,
+        'staticImagePath': staticPhoto,
       });
     });
     FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);

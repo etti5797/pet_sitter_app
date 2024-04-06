@@ -8,6 +8,7 @@ import 'in_app_chat/chats_page.dart';
 
 // final navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+bool isSpecialWidgetActive = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -10,6 +10,7 @@ class UserDataService {
   String userName = ''; //in order not to get the name from the database every time
   String userImage = '';
   String userPhotoUrl = '';
+  String staticImagePath = '';
 
     //every cached field should be cleared when the user logs out
     Future<void> signOut() async {
@@ -433,6 +434,26 @@ Future<void> addFavoriteDocuments(DocumentReference documentReference) async {
       return '';
     } catch (e) {
       print('Error getting photo URL: $e');
+      return '';
+    }
+  }
+
+  Future<String> getUserStaticImagePath() async {
+    try {
+      if(staticImagePath.isNotEmpty){
+        return staticImagePath;
+      }
+      User? currentUser = _auth.currentUser;
+
+      if (currentUser != null) {
+        DocumentSnapshot userData = await _firestore.collection('users').doc(currentUser.email).get();
+        if (userData.exists) {
+          return userData.get('image');
+        }
+      }
+      return '';
+    } catch (e) {
+      print('Error getting image: $e');
       return '';
     }
   }
