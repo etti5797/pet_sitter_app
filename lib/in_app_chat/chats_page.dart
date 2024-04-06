@@ -10,13 +10,14 @@ import 'InitialsAvatar.dart';
 import 'ImageAvatar.dart';
 import 'ProfileAvatarFromImage.dart';
 import 'package:bubble/bubble.dart';
+import 'package:petsitter/main.dart';
 
 class ChatWidget extends StatefulWidget {
   final String userId; // Unique ID of the current user
   final String otherUserId; // Unique ID of the other user
+  final String otherName;
   final String? photoUrl;
   final String? staticImagePath;
-  final String otherName;
 
   ChatWidget({
     required this.userId,
@@ -48,6 +49,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   @override
   void initState() {
     super.initState();
+    isSpecialWidgetActive = true;
     _messagesCollection = FirebaseFirestore.instance.collection('messages');
     // userNameFuture = getUserName(widget.userId);
     userNameFuture = UserDataService().getUserName();
@@ -57,14 +59,13 @@ class _ChatWidgetState extends State<ChatWidget> {
     userNameFuture.then((value) => userName = value);
     // otherUserNameFuture.then((value) => otherUserName = value);
 
-    if (widget.photoUrl != null && widget.photoUrl!.isNotEmpty) {
-      image = Image.network(widget.photoUrl!);
-    } else if (widget.staticImagePath != null &&
-        widget.staticImagePath!.isNotEmpty) {
-      image = Image.asset(widget.staticImagePath!);
-    } else {
-      image = null;
-    }
+  }
+
+  @override
+  void dispose() {
+    // Set isSpecialWidgetActive to false when leaving SecondScreen
+    isSpecialWidgetActive = false;
+    super.dispose();
   }
 
   Future<String> getUserName(String userId) async {
@@ -77,13 +78,36 @@ class _ChatWidgetState extends State<ChatWidget> {
   Widget build(BuildContext context) {
     String currentUserMail = widget.userId;
     String senderMail = widget.otherUserId;
+    String? staticPhoto = widget.staticImagePath;
+    String? photoUrl = widget.photoUrl;
+
     // Retrieve arguments
     if (widget.userId.isEmpty || widget.otherUserId.isEmpty) {
       final args =
           ModalRoute.of(context)!.settings.arguments as Map<String, String>;
       currentUserMail = args['currentUserMail']!;
       senderMail = args['senderMail']!;
+      otherUserName = widget.otherName.isEmpty ? args['senderName']! : widget.otherName;
+      staticPhoto = args['staticImagePath'];
+      photoUrl = args['photoUrl'];
     }
+
+    if (widget.photoUrl != null && widget.photoUrl!.isNotEmpty) {
+      image = Image.network(widget.photoUrl!);
+    } else if (widget.staticImagePath != null &&
+        widget.staticImagePath!.isNotEmpty) {
+      image = Image.asset(widget.staticImagePath!);
+    } else if(photoUrl != null && photoUrl.isNotEmpty) {
+      image = Image.network(photoUrl);
+    } else if(staticPhoto != null && staticPhoto.isNotEmpty) {
+      image = Image.asset(staticPhoto);
+    } else {
+      image = null;
+    }
+
+    if(!widget.otherName.isEmpty) {
+      otherUserName = widget.otherName;
+    } 
 
     otherUserNameFuture = getUserName(senderMail);
     
@@ -94,17 +118,17 @@ class _ChatWidgetState extends State<ChatWidget> {
         backgroundColor: const Color.fromARGB(255, 201, 160, 106),
         title: Row(
           children: [
-            ((widget.photoUrl != null && widget.photoUrl!.isNotEmpty) ||
-                    (widget.staticImagePath != null &&
-                        widget.staticImagePath!.isNotEmpty))
+            ((photoUrl != null && photoUrl!.isNotEmpty) ||
+                    (staticPhoto != null &&
+                        staticPhoto!.isNotEmpty))
                 ? ImageAvatar(
-                    photoUrl: widget.photoUrl,
-                    staticImagePath: widget.staticImagePath,
+                    photoUrl: photoUrl,
+                    staticImagePath: staticPhoto,
                     size: 52.0,
                   )
                 : InitialsAvatar(
-                    firstName: widget.otherName.split(' ')[0],
-                    lastName: widget.otherName.split(' ')[1],
+                    firstName: otherUserName.split(' ')[0],
+                    lastName: otherUserName.split(' ')[1],
                     size: 52.0,
                   ),
             SizedBox(
@@ -112,7 +136,7 @@ class _ChatWidgetState extends State<ChatWidget> {
             Padding(
               padding: const EdgeInsets.only(bottom: 10.0),
               child:             Text(
-              '${widget.otherName}',
+              '${otherUserName}',
               style: GoogleFonts.pacifico(
                 fontSize: 35,
                 color: const Color.fromARGB(255, 255, 255, 255),
@@ -262,7 +286,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                   ),
                   onPressed: () {
                     // Send message
-                    _sendMessage(currentUserMail, senderMail);
+                    _sendMessage(currentUserMail, senderMail, staticPhoto, photoUrl);
                   },
                   child: Icon(Icons.send),
                 ),
@@ -276,7 +300,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     );
   }
 
-  void _sendMessage(String currentUserMail, String senderMail) async {
+  void _sendMessage(String currentUserMail, String senderMail, String? staticPhoto, String? photoUrl) async {
     String message = _textEditingController.text.trim();
     if (message.isNotEmpty) {
       _textEditingController.clear();
@@ -341,13 +365,16 @@ class _ChatWidgetState extends State<ChatWidget> {
       });
     }
 
+    String currentUserStaticPhoto = await UserDataService().getUserStaticImagePath();
+    String currentUserPhotoUrl = await UserDataService().getUserPhotoUrl();
+
     String recipientToken =
         await AnyUserDataService().getUserPushToken(senderMail);
 
     if (recipientToken.isNotEmpty) {
       // Send push notification to the recipient (other user in the chat)
       // (recipientToken, senderName, currentUserMail, message
-      sendPushNotification(recipientToken, userName, currentUserMail, message);
+      sendPushNotification(recipientToken, userName, currentUserMail, currentUserStaticPhoto, currentUserPhotoUrl, message);
     }
   }
 }
